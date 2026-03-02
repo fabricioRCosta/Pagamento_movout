@@ -1,0 +1,33 @@
+# Dependências
+node_modules/
+jspm_packages/
+
+# Build
+dist/
+build/
+out/
+
+# Variáveis de ambiente (SEGURANÇA)
+.env
+.env.local
+.env.auth
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs (VS Code, IntelliJ)
+.vscode/
+.idea/
+*.swp
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+#servidor
+venv/
+__pycache__/
+*.pyc
+.env
