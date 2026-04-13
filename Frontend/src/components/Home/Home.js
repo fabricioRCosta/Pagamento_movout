@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, Platform, StatusBar } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Truck, Home as HomeIcon, User, History as HistoryIcon, Search } from 'lucide-react-native';
@@ -34,7 +34,7 @@ const Home = ({ onNavigate }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor={theme.colors.orangeBackground} />
+            <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerTop}>
@@ -93,38 +93,75 @@ const Home = ({ onNavigate }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.orangeBackground },
+    container: { flex: 1, backgroundColor: theme.colors.primary },
     header: {
-        padding: 24,
+        padding: theme.spacing.lg,
         paddingTop: Platform.OS === 'android' ? 40 : 20,
-        backgroundColor: theme.colors.orangeBackground,
-        paddingBottom: 24
+        backgroundColor: theme.colors.primary,
+        paddingBottom: theme.spacing.lg,
     },
-    headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-    avatar: { width: 40, height: 40, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 20 },
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    avatar: {
+        width: 40,
+        height: 40,
+        backgroundColor: 'rgba(255,255,255,0.25)',
+        borderRadius: 20,
+    },
     searchButton: {
-        flexDirection: 'row', alignItems: 'center', backgroundColor: 'white',
-        padding: 16, borderRadius: theme.borderRadius.lg,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.white,
+        padding: theme.spacing.md,
+        borderRadius: theme.borderRadius.xl,
         ...theme.shadows.sm,
     },
     searchText: { marginLeft: 12 },
-    mapContainer: { flex: 1, position: 'relative', overflow: 'hidden', borderTopLeftRadius: 32, borderTopRightRadius: 32, backgroundColor: '#fff', marginTop: -16 },
+    mapContainer: {
+        flex: 1,
+        position: 'relative',
+        overflow: 'hidden',
+        borderTopLeftRadius: theme.borderRadius.xxl,
+        borderTopRightRadius: theme.borderRadius.xxl,
+        backgroundColor: theme.colors.white,
+        marginTop: -theme.spacing.md,
+    },
     map: { width: '100%', height: '100%' },
     requestButton: {
-        position: 'absolute', bottom: 40, alignSelf: 'center',
-        backgroundColor: theme.colors.logoDark,
-        paddingVertical: 16, paddingHorizontal: 32, borderRadius: 9999,
-        flexDirection: 'row', alignItems: 'center', gap: 8,
-        ...theme.shadows.lg
+        position: 'absolute',
+        bottom: 40,
+        alignSelf: 'center',
+        backgroundColor: theme.colors.accent,
+        paddingVertical: theme.spacing.md,
+        paddingHorizontal: theme.spacing.xl,
+        borderRadius: theme.borderRadius.round,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        ...theme.shadows.lg,
     },
-    requestText: { color: 'white', marginLeft: 8 },
+    requestText: { color: theme.colors.white, marginLeft: 8 },
     bottomNav: {
-        flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center',
-        paddingVertical: 12, paddingHorizontal: 16, backgroundColor: 'white', borderTopWidth: 0,
-        ...theme.shadows.lg
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: theme.spacing.md,
+        backgroundColor: theme.colors.white,
+        borderTopWidth: 0,
+        ...theme.shadows.lg,
     },
     navItem: { alignItems: 'center', padding: 8 },
-    navItemActive: { alignItems: 'center', padding: 8, backgroundColor: '#FFF7ED', borderRadius: 12 },
+    navItemActive: {
+        alignItems: 'center',
+        padding: 8,
+        backgroundColor: theme.colors.primaryLight + '40',
+        borderRadius: theme.borderRadius.lg,
+    },
     navLabel: { marginTop: 4 },
 });
 

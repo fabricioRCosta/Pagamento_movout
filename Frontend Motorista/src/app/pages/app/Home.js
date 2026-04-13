@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import Text from '../../layouts/Components/Text';
+import Card from '../../layouts/Components/Card';
 import FreightCard from '../../layouts/Components/FreightCard';
 import AppLayout from '../../layouts/Layouts/AppLayout';
 import { theme } from '../../theme';
@@ -13,7 +15,6 @@ export default function Home({ navigation }) {
   const fetchFreights = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/fretes/`);
-      // Filtra apenas fretes com status "aberto"
       const abertos = response.data.filter(f => f.status === 'aberto');
       setFreights(abertos);
     } catch (error) {
@@ -41,7 +42,7 @@ export default function Home({ navigation }) {
   return (
     <AppLayout title="MOVOUT" scrollable>
       {/* Summary Card */}
-      <View style={styles.summaryCard}>
+      <Card style={styles.summaryCard}>
         <View style={styles.summaryHeader}>
           <View>
             <Text style={styles.summaryLabel}>FRETES DISPONÍVEIS</Text>
@@ -49,10 +50,10 @@ export default function Home({ navigation }) {
           </View>
           <View style={{ alignItems: 'flex-end' }}>
             <Text style={styles.summaryLabel}>STATUS</Text>
-            <Text style={[styles.summaryValueMedium, { color: '#10B981' }]}>Online</Text>
+            <Text style={[styles.summaryValueMedium, { color: theme.colors.success }]}>Online</Text>
           </View>
         </View>
-      </View>
+      </Card>
 
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Fretes Disponíveis</Text>
@@ -100,13 +101,9 @@ export default function Home({ navigation }) {
 
 const styles = StyleSheet.create({
   summaryCard: {
-    backgroundColor: theme.colors.white,
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
     marginTop: theme.spacing.md,
     marginBottom: theme.spacing.lg,
-    borderWidth: 1.5,
-    borderColor: '#ccd1d8ff',
   },
   summaryHeader: {
     flexDirection: 'row',
@@ -118,14 +115,15 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: theme.typography.fontWeights.bold,
     marginBottom: 4,
+    letterSpacing: 1,
   },
   summaryValueBig: {
-    color: theme.colors.black,
+    color: theme.colors.text,
     fontSize: theme.typography.fontSizes.xxl,
     fontWeight: theme.typography.fontWeights.extraBold,
   },
   summaryValueMedium: {
-    color: theme.colors.black,
+    color: theme.colors.text,
     fontSize: theme.typography.fontSizes.lg,
     fontWeight: theme.typography.fontWeights.bold,
   },
@@ -135,11 +133,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: theme.typography.fontSizes.lg,
     fontWeight: theme.typography.fontWeights.bold,
-    color: theme.colors.black,
+    color: theme.colors.text,
   },
   sectionSubtitle: {
     fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.black,
+    color: theme.colors.textSecondary,
     opacity: 0.8,
   },
 });

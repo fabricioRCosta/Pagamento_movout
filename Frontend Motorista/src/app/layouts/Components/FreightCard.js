@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import Text from './Text';
 import Card from './Card';
 import { theme } from '../../theme';
 
@@ -20,16 +21,20 @@ export default function FreightCard({
             {tags.length > 0 && (
                 <View style={styles.tagsRow}>
                     {tags.map((tag, index) => {
-                        let tagColor = '#fcc101'; // Yellow
-                        let tagTextColor = theme.colors.black;
+                        let tagColor = theme.colors.primaryLight;
+                        let tagTextColor = theme.colors.accent;
 
                         if (tag === 'Urgente') {
                             tagColor = theme.colors.error;
                             tagTextColor = theme.colors.white;
                         }
-                        if (tag === 'Aceito') {
+                        if (tag === 'Aceito' || tag === 'Concluído') {
                             tagColor = theme.colors.success;
                             tagTextColor = theme.colors.white;
+                        }
+                        if (tag === 'Cancelado') {
+                            tagColor = '#FEE2E2';
+                            tagTextColor = theme.colors.error;
                         }
 
                         return (
@@ -67,15 +72,15 @@ export default function FreightCard({
             </View>
 
             <View style={styles.routeContainer}>
-                <View style={[styles.routePill, { backgroundColor: theme.colors.white }]}>
-                    <View style={[styles.dot, { backgroundColor: '#3B82F6' }]} />
+                <View style={styles.routePill}>
+                    <View style={[styles.dot, { backgroundColor: theme.colors.secondary }]} />
                     <View>
                         <Text style={styles.routeLabel}>Origem</Text>
                         <Text style={styles.routeText} numberOfLines={1}>{origin}</Text>
                     </View>
                 </View>
-                <View style={[styles.routePill, { backgroundColor: theme.colors.white, marginTop: theme.spacing.sm }]}>
-                    <View style={[styles.dot, { backgroundColor: '#EF4444' }]} />
+                <View style={[styles.routePill, { marginTop: theme.spacing.sm }]}>
+                    <View style={[styles.dot, { backgroundColor: theme.colors.error }]} />
                     <View>
                         <Text style={styles.routeLabel}>Destino</Text>
                         <Text style={styles.routeText} numberOfLines={1}>{destination}</Text>
@@ -147,7 +152,7 @@ const styles = StyleSheet.create({
     price: {
         fontSize: theme.typography.fontSizes.xl,
         fontWeight: theme.typography.fontWeights.bold,
-        color: theme.colors.black,
+        color: theme.colors.accent,
     },
     infoRow: {
         flexDirection: 'row',
@@ -185,6 +190,7 @@ const styles = StyleSheet.create({
         borderRadius: theme.borderRadius.lg,
         borderWidth: 1,
         borderColor: theme.colors.border,
+        backgroundColor: theme.colors.surfaceAlt,
     },
     dot: {
         width: 8,
@@ -204,10 +210,11 @@ const styles = StyleSheet.create({
         fontWeight: theme.typography.fontWeights.bold
     },
     actionButton: {
-        backgroundColor: theme.colors.black,
+        backgroundColor: theme.colors.accent,
         paddingVertical: theme.spacing.md,
-        borderRadius: theme.borderRadius.lg,
+        borderRadius: theme.borderRadius.xl,
         alignItems: 'center',
+        ...theme.shadows.md,
     },
     actionButtonText: {
         color: theme.colors.white,

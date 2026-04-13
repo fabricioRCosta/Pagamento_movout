@@ -1,76 +1,115 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import AuthLayout from '../../layouts/Layouts/AuthLayout';
-import MyButton from '../../layouts/Components/button';
-import MyInput from '../../layouts/Components/Input';
-import logoImg from '../../../../assets/logo.png';
+import Button from '../../layouts/Components/button';
+import Input from '../../layouts/Components/Input';
+import Logo from '../../layouts/Components/Logo';
+import Text from '../../layouts/Components/Text';
+import Card from '../../layouts/Components/Card';
+import { theme } from '../../theme';
 
 export default function ForgotPassword({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = () => {
+    if (!email) return;
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setSent(true);
+    }, 1500);
+  };
+
   return (
     <AuthLayout>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Image
-            source={logoImg}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.title}>Recuperar Senha</Text>
-          <Text style={styles.subtitle}>
+          <Logo size="md" />
+          <Text size="display" weight="bold" color="white" style={styles.title}>
+            Recuperar Senha
+          </Text>
+          <Text size="md" color="white" align="center" style={styles.subtitle}>
             Enviaremos um link para o seu e-mail
           </Text>
         </View>
 
-        <View style={styles.card}>
-          <MyInput
-            label="Seu e-mail cadastrado"
-            placeholder="exemplo@gmail.com"
-            keyboardType="email-address"
-          />
+        <Card style={styles.card}>
+          {!sent ? (
+            <>
+              <Input
+                label="Seu e-mail cadastrado"
+                placeholder="motorista@exemplo.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+                leftIcon={<Text size="lg">✉️</Text>}
+              />
 
-          <MyButton title="Enviar Link" onPress={() => { }} />
+              <Button title="Enviar Link" onPress={handleSubmit} loading={loading} variant="primary" />
+            </>
+          ) : (
+            <View style={styles.successContainer}>
+              <Text size="xl" style={{ fontSize: 48 }}>✅</Text>
+              <Text weight="bold" size="lg" color="text" style={{ marginTop: theme.spacing.md }}>Email Enviado!</Text>
+              <Text color="textSecondary" style={{ textAlign: 'center', marginTop: theme.spacing.sm, marginBottom: theme.spacing.lg }}>
+                Verifique sua caixa de entrada para redefinir sua senha.
+              </Text>
+              <Button
+                title="Voltar ao Login"
+                onPress={() => navigation.navigate('Login')}
+                variant="secondary"
+              />
+            </View>
+          )}
+        </Card>
 
-          <TouchableOpacity
-            style={{ marginTop: 20 }}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.backText}>Voltar para o Login</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={{ marginTop: theme.spacing.lg }}
+          onPress={() => navigation.goBack()}
+        >
+          <Text size="sm" weight="bold" color="white" style={styles.backText}>
+            Voltar para o Login
+          </Text>
+        </TouchableOpacity>
       </View>
     </AuthLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { width: '100%', alignItems: 'center', justifyContent: 'center' },
-  header: { alignItems: 'center', marginBottom: 30, paddingHorizontal: 20 },
-  logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 10,
+  content: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#000' },
+  header: {
+    alignItems: 'center',
+    marginBottom: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.lg,
+  },
+  title: {
+    marginTop: theme.spacing.sm,
+  },
   subtitle: {
-    fontSize: 16,
-    color: '#000',
-    opacity: 0.7,
-    textAlign: 'center',
-    marginTop: 10,
+    opacity: 0.8,
+    marginTop: theme.spacing.sm,
   },
   card: {
-    backgroundColor: '#FFF',
-    borderRadius: 30,
-    padding: 25,
+    paddingVertical: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.lg,
     width: '85%',
-    maxWidth: 360,
-    minWidth: 300,
-    elevation: 15,
+    maxWidth: 400,
     alignItems: 'center',
+    ...theme.shadows.lg,
+  },
+  successContainer: {
+    alignItems: 'center',
+    padding: theme.spacing.md,
   },
   backText: {
-    fontWeight: 'bold',
-    color: '#000',
     textDecorationLine: 'underline',
   },
 });

@@ -1,53 +1,69 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Alert, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import AuthLayout from '../../layouts/Layouts/AuthLayout';
-import MyButton from '../../layouts/Components/button';
-import MyInput from '../../layouts/Components/Input';
-import Seletor from '../../layouts/Components/Seletor';
-import logoImg from '../../../../assets/logo.png';
-import { registerUser } from '../../../../requiscoes';
+import Button from '../../layouts/Components/button';
+import Input from '../../layouts/Components/Input';
+import Logo from '../../layouts/Components/Logo';
+import Text from '../../layouts/Components/Text';
+import Card from '../../layouts/Components/Card';
 import { theme } from '../../theme';
+import { API_BASE_URL } from '../../../api/config';
 
 export default function Register({ navigation }) {
-  const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmacao, setConfirmacao] = useState('');
-  const [cpf, setCpf] = useState('');
-  const [veiculo, setVeiculo] = useState('Carro');
-  const [marca, setMarca] = useState('');
-  const [placa, setPlaca] = useState('');
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    telefone: '',
+    cpf: '',
+    cnh: '',
+    senha: '',
+    confirmarSenha: ''
+  });
+  const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async () => {
-    if (!nome || !email || !senha || !cpf || !marca || !placa) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+  const handleChange = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setErro('');
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.nome || !formData.email || !formData.telefone || !formData.cpf || !formData.cnh || !formData.senha || !formData.confirmarSenha) {
+      setErro('Preencha todos os campos');
       return;
     }
 
-    if (senha !== confirmacao) {
-      Alert.alert('Erro', 'As senhas não coincidem.');
+    if (formData.senha !== formData.confirmarSenha) {
+      setErro('As senhas não coincidem');
       return;
     }
 
     setLoading(true);
     try {
-      const userData = {
-        nome,
-        email,
-        senha,
-        cpf,
-        veiculo,
-        marca,
-        placa,
-        tipo: 'motorista'
-      };
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: formData.nome,
+          email: formData.email,
+          senha: formData.senha,
+          cpf: formData.cpf,
+          telefone: formData.telefone,
+          cnh: formData.cnh,
+          tipo: 'motorista'
+        }),
+      });
+      const data = await response.json();
 
-      await registerUser(userData);
-      Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
-      navigation.navigate('Login');
-    } catch (error) {
-      Alert.alert('Erro', error.message || 'Não foi possível realizar o cadastro. Tente novamente.');
+      if (response.ok) {
+        alert('Cadastro realizado com sucesso!');
+        navigation.navigate('Login');
+      } else {
+        setErro(data.detail || 'Erro ao cadastrar');
+      }
+    } catch (e) {
+      setErro('Erro de conexão com o servidor');
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -55,156 +71,159 @@ export default function Register({ navigation }) {
 
   return (
     <AuthLayout>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ width: '100%', alignItems: 'center' }}
       >
-        <View style={styles.header}>
-          <Image
-            source={logoImg}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.title}>MOVOUT</Text>
-          <Text style={styles.subtitle}>crie sua conta</Text>
-        </View>
-
-        <View style={styles.card}>
-          <MyInput
-            label="Nome Completo"
-            placeholder="Ex: João Silva"
-            value={nome}
-            onChangeText={setNome}
-          />
-          <MyInput
-            label="Email"
-            placeholder="exemplo@gmail.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
-
-          <View style={styles.row}>
-            <View style={{ flex: 1, marginRight: theme.spacing.sm }}>
-              <MyInput
-                label="Senha"
-                placeholder="••••"
-                secureTextEntry
-                value={senha}
-                onChangeText={setSenha}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <MyInput
-                label="Confirmar"
-                placeholder="••••"
-                secureTextEntry
-                value={confirmacao}
-                onChangeText={setConfirmacao}
-              />
-            </View>
-          </View>
-
-          <MyInput
-            label="CPF"
-            placeholder="000.000.000-00"
-            keyboardType="numeric"
-            value={cpf}
-            onChangeText={setCpf}
-          />
-
-          <Seletor
-            titulo="Qual veículo você possui?"
-            opcoes={['Carro', 'Caminhonete', 'Caminhão']}
-            valorSelecionado={veiculo}
-            aoSelecionar={setVeiculo}
-          />
-
-          <View style={styles.row}>
-            <View style={{ flex: 1, marginRight: theme.spacing.sm }}>
-              <MyInput
-                label="Marca"
-                placeholder="Ex: Ford"
-                value={marca}
-                onChangeText={setMarca}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <MyInput
-                label="Placa"
-                placeholder="ABC1D23"
-                value={placa}
-                onChangeText={setPlaca}
-                autoCapitalize="characters"
-              />
-            </View>
-          </View>
-
-          <MyButton
-            title={loading ? "Cadastrando..." : "Finalizar Cadastro"}
-            onPress={handleRegister}
-            disabled={loading}
-          />
-
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backContainer}
-          >
-            <Text style={styles.backText}>Voltar para o Login</Text>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text weight="bold" style={styles.backText}>{'<'}</Text>
           </TouchableOpacity>
-        </View>
-      </ScrollView>
+
+          <View style={styles.header}>
+            <Logo size="md" />
+            <Text size="xxl" weight="extraBold" color="white" style={styles.appName}>
+              MOVOUT
+            </Text>
+            <Text variant="subtitle" style={styles.subtitle}>
+              cadastro motorista
+            </Text>
+          </View>
+
+          <Card style={styles.card}>
+            <Input
+              label="Nome Completo"
+              placeholder="João Pedro"
+              value={formData.nome}
+              onChangeText={(t) => handleChange('nome', t)}
+            />
+            <Input
+              label="Email"
+              placeholder="motorista@email.com"
+              value={formData.email}
+              onChangeText={(t) => handleChange('email', t)}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <Input
+              label="CPF"
+              placeholder="000.000.000-00"
+              value={formData.cpf}
+              onChangeText={(t) => handleChange('cpf', t)}
+              keyboardType="numeric"
+            />
+            <Input
+              label="CNH"
+              placeholder="00000000000"
+              value={formData.cnh}
+              onChangeText={(t) => handleChange('cnh', t)}
+              keyboardType="numeric"
+            />
+            <Input
+              label="Telefone"
+              placeholder="(65) 98765-4321"
+              value={formData.telefone}
+              onChangeText={(t) => handleChange('telefone', t)}
+              keyboardType="phone-pad"
+            />
+
+            <View style={styles.row}>
+              <View style={{ flex: 1, marginRight: theme.spacing.sm }}>
+                <Input
+                  label="Senha"
+                  placeholder="••••••••"
+                  value={formData.senha}
+                  onChangeText={(t) => handleChange('senha', t)}
+                  secureTextEntry
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Input
+                  label="Confirmar"
+                  placeholder="••••••••"
+                  value={formData.confirmarSenha}
+                  onChangeText={(t) => handleChange('confirmarSenha', t)}
+                  secureTextEntry
+                />
+              </View>
+            </View>
+
+            {erro ? <Text color="error" size="sm" style={styles.error}>{erro}</Text> : null}
+
+            <Button
+              title="Cadastrar-se"
+              onPress={handleSubmit}
+              loading={loading}
+              variant="primary"
+            />
+          </Card>
+
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.cancelButton}>
+            <Text color="white" weight="bold" style={styles.cancelText}>Voltar para o Login</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </AuthLayout>
   );
 }
 
 const styles = StyleSheet.create({
   scrollContent: {
-    flexGrow: 1,
+    paddingTop: 20,
+    paddingBottom: 40,
     alignItems: 'center',
-    paddingVertical: theme.spacing.xl,
     width: '100%',
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: theme.borderRadius.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginLeft: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
+  },
+  backText: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: theme.colors.white,
   },
   header: {
     alignItems: 'center',
-    marginBottom: theme.spacing.md
+    marginBottom: theme.spacing.lg,
   },
-  logo: {
-    width: 80,
-    height: 80,
-    marginBottom: theme.spacing.xs,
-  },
-  title: {
-    fontSize: theme.typography.fontSizes.xxl,
-    fontWeight: theme.typography.fontWeights.extraBold,
-    color: theme.colors.black
+  appName: {
+    marginTop: theme.spacing.sm,
+    color: theme.colors.white,
+    letterSpacing: 3,
   },
   subtitle: {
-    fontSize: theme.typography.fontSizes.md,
-    color: theme.colors.black,
-    opacity: 0.7
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 4,
   },
   card: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: '90%',
+    paddingVertical: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.lg,
+    width: '85%',
     maxWidth: 450,
     ...theme.shadows.lg,
   },
   row: {
     flexDirection: 'row',
-    width: '100%'
+    width: '100%',
   },
-  backContainer: {
+  error: {
+    marginBottom: theme.spacing.md,
+    textAlign: 'center',
+  },
+  cancelButton: {
+    padding: theme.spacing.md,
     marginTop: theme.spacing.md,
     alignItems: 'center',
   },
-  backText: {
-    color: theme.colors.black,
+  cancelText: {
     textDecorationLine: 'underline',
-    fontSize: theme.typography.fontSizes.sm,
-    fontWeight: theme.typography.fontWeights.bold,
-  }
+  },
 });

@@ -5,7 +5,6 @@ import { Text } from '../ui/Text';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Logo } from '../ui/Logo';
-import { Card } from '../ui/Card';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../api/config';
 
@@ -35,14 +34,10 @@ const Login = ({ onNavigate, onLogin }) => {
 
             const data = await response.json();
             if (response.ok) {
-                // Sucesso! Salva os dados no AsyncStorage para manter o usuário logado
                 await AsyncStorage.setItem('userToken', data.token);
                 await AsyncStorage.setItem('userData', JSON.stringify(data.usuario));
-
-                // Navega para a Home
                 onLogin(data.usuario);
             } else {
-                // Falhou (ex: E-mail ou senha incorretos)
                 setErro(data.detail || 'Erro ao fazer login.');
             }
         } catch (error) {
@@ -56,73 +51,64 @@ const Login = ({ onNavigate, onLogin }) => {
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.keyboardView}
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps="always"
             >
-                <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={styles.header}>
+                    <Logo size="lg" />
+                </View>
 
-                    <View style={styles.header}>
-                        <Logo size="lg" />
-                        <Text variant="subtitle" align="center" color="logoDark" style={styles.subtitle}>
-                            seu app de fretes
+                <View style={styles.card}>
+                    <Input
+                        label="Email"
+                        placeholder="usuario@exemplo.com"
+                        value={email}
+                        onChangeText={setEmail}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                    />
+
+                    <Input
+                        label="Senha"
+                        placeholder="••••••••"
+                        value={senha}
+                        onChangeText={setSenha}
+                        secureTextEntry
+                    />
+
+                    {erro ? (
+                        <Text color="error" size="sm" style={styles.error}>
+                            {erro}
                         </Text>
-                    </View>
+                    ) : null}
 
-                    <Card style={styles.card}>
-                        <Input
-                            label="Email"
-                            placeholder="usuario@exemplo.com"
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                            leftIcon={<Text size="lg">✉️</Text>}
-                        />
+                    <Button
+                        title="Entrar"
+                        onPress={handleSubmit}
+                        loading={loading}
+                        variant="primary"
+                    />
 
-                        <Input
-                            label="Senha"
-                            placeholder="••••••••"
-                            value={senha}
-                            onChangeText={setSenha}
-                            secureTextEntry
-                            leftIcon={<Text size="lg">🔒</Text>}
-                        />
+                    <Button
+                        title="Criar Conta"
+                        onPress={() => onNavigate('register')}
+                        variant="secondary"
+                        disabled={loading}
+                    />
 
-                        {erro ? (
-                            <Text color="error" size="sm" style={styles.error}>
-                                {erro}
-                            </Text>
-                        ) : null}
+                    <Button
+                        title="Esqueceu a senha?"
+                        onPress={() => onNavigate('forgot')}
+                        variant="ghost"
+                        size="sm"
+                        disabled={loading}
+                        style={styles.forgotButton}
+                        textStyle={styles.forgotText}
+                    />
+                </View>
 
-                        <Button
-                            title="Entrar"
-                            onPress={handleSubmit}
-                            loading={loading}
-                            style={{ ...styles.loginButton, backgroundColor: 'black' }}
-                            variant="primary"
-                        />
-
-                        <Button
-                            title="Criar Conta"
-                            onPress={() => onNavigate('register')}
-                            variant="ghost"
-                            style={{ ...styles.registerButton, elevation: 0, shadowOpacity: 0 }}
-                            textStyle={{ color: 'black' }}
-                        />
-
-                        <Button
-                            title="Esqueceu a senha?"
-                            onPress={() => onNavigate('forgot')}
-                            variant="ghost"
-                            size="sm"
-                            style={{ ...styles.forgotButton, elevation: 0, shadowOpacity: 0 }}
-                            textStyle={{ color: 'black' }}
-                        />
-                    </Card>
-
-                </ScrollView>
-            </KeyboardAvoidingView>
+            </ScrollView>
         </View>
     );
 };
@@ -132,44 +118,37 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.orangeBackground,
     },
-    keyboardView: { flex: 1 },
     scrollContent: {
         flexGrow: 1,
         justifyContent: 'center',
-        padding: 24,
+        alignItems: 'center',
+        padding: theme.spacing.lg,
     },
     header: {
         alignItems: 'center',
-        marginBottom: 32
-    },
-    subtitle: {
-        marginTop: 8,
-        letterSpacing: 0.5,
+        marginBottom: theme.spacing.xl,
     },
     card: {
-        marginBottom: 24,
-        paddingVertical: 32,
-        alignItems: 'center',
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.xl,
+        paddingVertical: theme.spacing.xl,
+        paddingHorizontal: theme.spacing.lg,
+        width: '100%',
+        maxWidth: 400,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
     },
     error: {
-        marginBottom: 16,
+        marginBottom: theme.spacing.md,
         textAlign: 'center',
     },
-    loginButton: {
-        marginTop: 8,
-        marginBottom: 8,
+    forgotButton: {
+        elevation: 0,
+        shadowOpacity: 0,
     },
-    footer: {
-        alignItems: 'center',
-        marginTop: 10
+    forgotText: {
+        textDecorationLine: 'underline',
     },
-    footerText: {
-        marginBottom: 12,
-    },
-    registerButton: {
-        borderColor: theme.colors.logoDark,
-        paddingHorizontal: 32,
-    }
 });
 
 export default Login;

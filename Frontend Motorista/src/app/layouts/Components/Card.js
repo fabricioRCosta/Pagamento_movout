@@ -2,9 +2,9 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { theme } from '../../theme';
 
-export default function Card({ children, style }) {
+export default function Card({ children, style, variant = 'default' }) {
     return (
-        <View style={[styles.card, style]}>
+        <View style={[styles.card, variant === 'outlined' && styles.outlined, style]}>
             {children}
         </View>
     );
@@ -12,12 +12,17 @@ export default function Card({ children, style }) {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: theme.colors.surface, // Gray cards as requested
+        backgroundColor: theme.colors.surface,
         borderRadius: theme.borderRadius.xl,
         padding: theme.spacing.md,
         borderWidth: 1,
-        borderColor: '#E2E8F0', // Light border for better definition on white
-        ...theme.shadows.sm, // Softer shadow for gray cards
+        borderColor: theme.colors.border,
+        ...theme.shadows.sm,
         marginBottom: theme.spacing.md,
+    },
+    outlined: {
+        backgroundColor: theme.colors.white,
+        borderWidth: 1.5,
+        borderColor: theme.colors.border,
     },
 });

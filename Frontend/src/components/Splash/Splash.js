@@ -1,23 +1,29 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Dimensions, Animated, StatusBar } from 'react-native';
+import { View, StyleSheet, Animated, StatusBar } from 'react-native';
 import { Logo } from '../ui/Logo';
 import { Text } from '../ui/Text';
 import { theme } from '../../theme';
 
 const Splash = ({ onNavigate }) => {
     const fadeAnim = new Animated.Value(0);
-    console.log('--- [SPLASH] Renderizando Splash ---');
+    const scaleAnim = new Animated.Value(0.8);
 
     useEffect(() => {
-        console.log('--- [SPLASH] Iniciando animação e timer de 3s... ---');
-        Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-        }).start();
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 800,
+                useNativeDriver: true,
+            }),
+            Animated.spring(scaleAnim, {
+                toValue: 1,
+                tension: 20,
+                friction: 7,
+                useNativeDriver: true,
+            }),
+        ]).start();
 
         const timer = setTimeout(() => {
-            console.log('--- [SPLASH] Timer de 3s finalizado. Navegando para LOGIN... ---');
             if (onNavigate) {
                 onNavigate('login');
             }
@@ -29,11 +35,8 @@ const Splash = ({ onNavigate }) => {
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
-            <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+            <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
                 <Logo size="lg" />
-                <Text variant="subtitle" size="xl" weight="medium" align="center" color="logoDark" style={styles.tagline}>
-                    seu app de fretes
-                </Text>
             </Animated.View>
         </View>
     );
@@ -49,12 +52,15 @@ const styles = StyleSheet.create({
     content: {
         alignItems: 'center',
     },
+    appName: {
+        marginTop: theme.spacing.sm,
+        letterSpacing: 4,
+    },
     tagline: {
-        marginTop: 16,
+        marginTop: 8,
         letterSpacing: 0.5,
-        color: theme.colors.logoDark,
+        color: 'rgba(255,255,255,0.8)',
     },
 });
 
 export default Splash;
-

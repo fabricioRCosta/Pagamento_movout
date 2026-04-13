@@ -1,36 +1,33 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import AuthLayout from '../../layouts/Layouts/AuthLayout';
-import MyButton from '../../layouts/Components/button';
-import MyInput from '../../layouts/Components/Input';
-import logoImg from '../../../../assets/logo.png';
-import { loginUser } from '../../../../requiscoes';
+import Button from '../../layouts/Components/button';
+import Input from '../../layouts/Components/Input';
+import Logo from '../../layouts/Components/Logo';
+import Text from '../../layouts/Components/Text';
+import Card from '../../layouts/Components/Card';
 import { theme } from '../../theme';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Login({ navigation }) {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
 
-  const handleLogin = async () => {
+  const handleSubmit = async () => {
     if (!email || !senha) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+      setErro('Preencha email e senha.');
       return;
     }
 
+    setErro('');
     setLoading(true);
     try {
-      const response = await loginUser(email, senha);
-      if (response.status === 'sucesso' && response.usuario) {
-        login(response.usuario);
-        navigation.navigate('Home');
-      } else {
-        throw new Error('Falha no login');
-      }
+      await login(email, senha);
     } catch (error) {
-      Alert.alert('Erro', 'Login ou senha incorretos.');
+      setErro(error.message || 'Erro ao fazer login.');
     } finally {
       setLoading(false);
     }
@@ -38,107 +35,107 @@ export default function Login({ navigation }) {
 
   return (
     <AuthLayout>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.content}>
         <View style={styles.header}>
-          <Image
-            source={logoImg}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.title}>MOVOUT</Text>
-          <Text style={styles.subtitle}>seu app de fretes</Text>
+          <Logo size="lg" />
+          <Text size="xxl" weight="extraBold" color="white" style={styles.appName}>
+            MOVOUT
+          </Text>
+          <Text variant="subtitle" align="center" style={styles.subtitle}>
+            área do motorista
+          </Text>
         </View>
 
-        <View style={styles.card}>
-          <MyInput
+        <Card style={styles.card}>
+          <Input
             label="Email"
-            placeholder="usuario@exemplo.com"
-            autoCapitalize="none"
-            keyboardType="email-address"
+            placeholder="motorista@exemplo.com"
             value={email}
             onChangeText={setEmail}
-            leftIcon={<Text style={{ fontSize: 18 }}>✉️</Text>}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            leftIcon={<Text size="lg">✉️</Text>}
           />
-          <MyInput
+
+          <Input
             label="Senha"
             placeholder="••••••••"
-            secureTextEntry
             value={senha}
             onChangeText={setSenha}
-            leftIcon={<Text style={{ fontSize: 18 }}>🔒</Text>}
+            secureTextEntry
+            leftIcon={<Text size="lg">🔒</Text>}
           />
 
-          <MyButton
-            title={loading ? "Entrando..." : "Entrar"}
-            onPress={handleLogin}
-            disabled={loading}
+          {erro ? (
+            <Text color="error" size="sm" style={styles.error}>
+              {erro}
+            </Text>
+          ) : null}
+
+          <Button
+            title="Entrar"
+            onPress={handleSubmit}
+            loading={loading}
+            variant="primary"
           />
-          <MyButton
+
+          <Button
             title="Criar Conta"
-            type="secondary"
             onPress={() => navigation.navigate('Register')}
+            variant="secondary"
             disabled={loading}
           />
 
-          <TouchableOpacity
+          <Button
+            title="Esqueceu a senha?"
             onPress={() => navigation.navigate('ForgotPassword')}
+            variant="ghost"
+            size="sm"
             disabled={loading}
-            style={styles.forgotContainer}
-          >
-            <Text style={styles.forgot}>Esqueceu a senha?</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+            style={styles.forgotButton}
+            textStyle={styles.forgotText}
+          />
+        </Card>
+      </View>
     </AuthLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    flexGrow: 1,
+  content: {
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: theme.spacing.xl,
-    width: '100%'
   },
   header: {
     alignItems: 'center',
-    marginBottom: theme.spacing.xl
+    marginBottom: theme.spacing.xl,
   },
-  logo: {
-    width: 100,
-    height: 100,
-    marginBottom: theme.spacing.sm,
-  },
-  title: {
-    fontSize: theme.typography.fontSizes.display,
-    fontWeight: theme.typography.fontWeights.extraBold,
-    color: theme.colors.black
+  appName: {
+    marginTop: theme.spacing.sm,
+    color: theme.colors.white,
+    letterSpacing: 3,
   },
   subtitle: {
-    fontSize: theme.typography.fontSizes.lg,
-    color: theme.colors.black,
-    opacity: 0.7
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 4,
   },
   card: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
+    paddingVertical: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.lg,
     width: '85%',
     maxWidth: 400,
     ...theme.shadows.lg,
   },
-  forgotContainer: {
-    marginTop: theme.spacing.md,
-  },
-  forgot: {
-    color: theme.colors.black,
-    textDecorationLine: 'underline',
+  error: {
+    marginBottom: theme.spacing.md,
     textAlign: 'center',
-    fontSize: theme.typography.fontSizes.sm,
-    fontWeight: theme.typography.fontWeights.bold,
+  },
+  forgotButton: {
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  forgotText: {
+    textDecorationLine: 'underline',
   },
 });

@@ -6,7 +6,9 @@ export default function AuthLayout({ children }) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
-      {children}
+      <View style={styles.content}>
+        {children}
+      </View>
     </View>
   );
 }
@@ -14,8 +16,12 @@ export default function AuthLayout({ children }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
-    backgroundColor: theme.colors.orangeBackground,
+    backgroundColor: theme.colors.primary,
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
   },
 });

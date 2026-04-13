@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import Text from '../../layouts/Components/Text';
 import FreightCard from '../../layouts/Components/FreightCard';
 import AppLayout from '../../layouts/Layouts/AppLayout';
 import { theme } from '../../theme';
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: theme.typography.fontSizes.lg,
     fontWeight: theme.typography.fontWeights.bold,
-    color: theme.colors.black,
+    color: theme.colors.text,
   },
   subtitle: {
     fontSize: theme.typography.fontSizes.sm,

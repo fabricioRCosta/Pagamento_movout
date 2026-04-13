@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowLeft, Send } from 'lucide-react-native';
+import { theme } from '../../theme';
 import { WS_BASE_URL } from '../../api/config';
 
 const Chat = ({ onNavigate, freteId, route, navigation }) => {
-    // Captura o ID caso venha pelo React Navigation ou via props diretas
     const currentFreteId = route?.params?.freteId || freteId || 1;
 
     const [messages, setMessages] = useState([]);
@@ -61,7 +61,7 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
             <View style={[styles.messageRow, isUser ? styles.messageRowUser : styles.messageRowDriver]}>
                 {!isUser && (
                     <View style={styles.avatar}>
-                        <Text style={styles.avatarText}>C</Text>
+                        <Text style={styles.avatarText}>M</Text>
                     </View>
                 )}
                 <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleDriver]}>
@@ -78,10 +78,10 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <LinearGradient colors={['#F4A259', '#D97706']} style={styles.header}>
+            <LinearGradient colors={[theme.colors.primary, theme.colors.primaryDark]} style={styles.header}>
                 <View style={styles.headerContent}>
                     <TouchableOpacity onPress={() => onNavigate('accepted', { freightId: currentFreteId })} style={styles.backButton}>
-                        <ArrowLeft color="#fff" size={24} />
+                        <ArrowLeft color={theme.colors.white} size={24} />
                     </TouchableOpacity>
                     <View>
                         <Text style={styles.headerTitle}>Carlos Oliveira</Text>
@@ -107,10 +107,10 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
                         placeholder="Digite sua mensagem..."
                         value={inputText}
                         onChangeText={setInputText}
-                        placeholderTextColor="#9CA3AF"
+                        placeholderTextColor={theme.colors.textSecondary}
                     />
                     <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-                        <Send color="white" size={20} />
+                        <Send color={theme.colors.white} size={20} />
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
@@ -119,36 +119,66 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F3F4F6' },
-    header: { padding: 20, paddingTop: 50, paddingBottom: 20 },
+    container: { flex: 1, backgroundColor: theme.colors.background },
+    header: { padding: theme.spacing.lg, paddingTop: 50, paddingBottom: theme.spacing.lg },
     headerContent: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-    backButton: { width: 40, height: 40, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    headerTitle: { fontSize: 18, fontWeight: 'bold', color: 'white' },
-    headerSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 12 },
+    backButton: {
+        width: 44, height: 44,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        borderRadius: theme.borderRadius.lg,
+        justifyContent: 'center', alignItems: 'center',
+    },
+    headerTitle: { fontSize: 18, fontWeight: 'bold', color: theme.colors.white },
+    headerSubtitle: { color: 'rgba(255,255,255,0.8)', fontSize: 12 },
 
-    chatList: { padding: 20 },
+    chatList: { padding: theme.spacing.lg },
     messageRow: { flexDirection: 'row', marginBottom: 16, alignItems: 'flex-end', gap: 8 },
     messageRowUser: { justifyContent: 'flex-end' },
     messageRowDriver: { justifyContent: 'flex-start' },
 
-    avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#D1D5DB', justifyContent: 'center', alignItems: 'center' },
-    avatarText: { color: '#4B5563', fontWeight: 'bold' },
+    avatar: {
+        width: 32, height: 32, borderRadius: 16,
+        backgroundColor: theme.colors.surfaceAlt,
+        justifyContent: 'center', alignItems: 'center',
+    },
+    avatarText: { color: theme.colors.textSecondary, fontWeight: 'bold' },
 
-    bubble: { maxWidth: '80%', padding: 12, borderRadius: 16 },
-    bubbleUser: { backgroundColor: 'black', borderBottomRightRadius: 4 },
-    bubbleDriver: { backgroundColor: 'white', borderBottomLeftRadius: 4, borderWidth: 1, borderColor: '#E5E7EB' },
+    bubble: { maxWidth: '80%', padding: 12, borderRadius: theme.borderRadius.xl },
+    bubbleUser: { backgroundColor: theme.colors.accent, borderBottomRightRadius: 4 },
+    bubbleDriver: {
+        backgroundColor: theme.colors.surface,
+        borderBottomLeftRadius: 4,
+        borderWidth: 1, borderColor: theme.colors.border,
+    },
 
     messageText: { fontSize: 14, marginBottom: 4 },
-    messageTextUser: { color: 'white' },
-    messageTextDriver: { color: '#1F2937' },
+    messageTextUser: { color: theme.colors.white },
+    messageTextDriver: { color: theme.colors.text },
 
     timeText: { fontSize: 10, alignSelf: 'flex-end' },
     timeTextUser: { color: 'rgba(255,255,255,0.7)' },
-    timeTextDriver: { color: '#9CA3AF' },
+    timeTextDriver: { color: theme.colors.textSecondary },
 
-    inputContainer: { flexDirection: 'row', padding: 16, backgroundColor: 'white', borderTopWidth: 1, borderTopColor: '#E5E7EB', alignItems: 'center', gap: 12 },
-    input: { flex: 1, backgroundColor: '#F3F4F6', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: '#1F2937' },
-    sendButton: { width: 44, height: 44, backgroundColor: 'black', borderRadius: 22, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 2 }
+    inputContainer: {
+        flexDirection: 'row', padding: theme.spacing.md,
+        backgroundColor: theme.colors.surface,
+        borderTopWidth: 1, borderTopColor: theme.colors.border,
+        alignItems: 'center', gap: 12,
+    },
+    input: {
+        flex: 1,
+        backgroundColor: theme.colors.surfaceAlt,
+        borderRadius: theme.borderRadius.round,
+        paddingHorizontal: theme.spacing.md, paddingVertical: 10,
+        fontSize: 14, color: theme.colors.text,
+    },
+    sendButton: {
+        width: 44, height: 44,
+        backgroundColor: theme.colors.accent,
+        borderRadius: 22,
+        justifyContent: 'center', alignItems: 'center',
+        ...theme.shadows.sm,
+    },
 });
 
 export default Chat;

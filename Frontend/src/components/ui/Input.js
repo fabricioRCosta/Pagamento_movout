@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '../../theme';
 import { Text } from './Text';
@@ -24,10 +24,14 @@ export const Input = ({
     const isPassword = secureTextEntry;
     const showPasswordToggle = isPassword && value?.length > 0;
 
+    const handleFocus = useCallback(() => setIsFocused(true), []);
+    const handleBlur = useCallback(() => setIsFocused(false), []);
+    const togglePassword = useCallback(() => setIsPasswordVisible(v => !v), []);
+
     return (
         <View style={[styles.container, style]}>
             {label && (
-                <Text size="sm" weight="medium" color="textSecondary" style={styles.label}>
+                <Text size="sm" weight="medium" color="text" style={styles.label}>
                     {label}
                 </Text>
             )}
@@ -46,8 +50,8 @@ export const Input = ({
                     placeholder={placeholder}
                     placeholderTextColor={theme.colors.textSecondary}
                     secureTextEntry={isPassword && !isPasswordVisible}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     keyboardType={keyboardType}
                     autoCapitalize={autoCapitalize}
                     {...props}
@@ -55,7 +59,8 @@ export const Input = ({
                 {showPasswordToggle ? (
                     <TouchableOpacity
                         style={styles.rightIcon}
-                        onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                        onPress={togglePassword}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
                         {isPasswordVisible ? (
                             <EyeOff size={20} color={theme.colors.textSecondary} />
@@ -78,25 +83,26 @@ export const Input = ({
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 16,
+        marginBottom: theme.spacing.md,
         width: '100%',
     },
     label: {
         marginBottom: 6,
+        marginLeft: theme.spacing.sm,
     },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: theme.colors.surface,
-        borderWidth: 1,
+        backgroundColor: theme.colors.surfaceAlt,
+        borderWidth: 1.5,
         borderColor: theme.colors.border,
-        borderRadius: theme.borderRadius.md,
-        paddingHorizontal: 12,
-        height: 48,
+        borderRadius: theme.borderRadius.xl,
+        paddingHorizontal: theme.spacing.md,
+        minHeight: 50,
     },
     input: {
         flex: 1,
-        height: '100%',
+        paddingVertical: 12,
         color: theme.colors.text,
         fontSize: theme.typography.fontSizes.md,
     },
@@ -115,5 +121,6 @@ const styles = StyleSheet.create({
     },
     errorText: {
         marginTop: 4,
+        marginLeft: theme.spacing.sm,
     },
 });

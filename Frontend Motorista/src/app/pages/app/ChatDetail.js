@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TextInput,
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   SafeAreaView
 } from 'react-native';
+import Text from '../../layouts/Components/Text';
 import AppLayout from '../../layouts/Layouts/AppLayout';
 import { WS_BASE_URL } from '../../../api/config';
 

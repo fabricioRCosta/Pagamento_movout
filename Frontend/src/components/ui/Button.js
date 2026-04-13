@@ -14,7 +14,7 @@ export const Button = ({
     iconRight,
     style,
     textStyle,
-    fullWidth = false,
+    fullWidth = true,
 }) => {
     const isPrimary = variant === 'primary';
     const isOutline = variant === 'outline';
@@ -22,31 +22,40 @@ export const Button = ({
     const isSecondary = variant === 'secondary';
 
     const baseBackgroundColor = isPrimary
-        ? theme.colors.primary
+        ? theme.colors.accent
         : isSecondary
-            ? theme.colors.secondary
+            ? theme.colors.transparent
             : isOutline || isGhost
                 ? 'transparent'
-                : theme.colors.primary;
+                : theme.colors.accent;
 
-    const baseTextColor = isPrimary || isSecondary
-        ? theme.colors.white
+    const baseBorderColor = isSecondary
+        ? theme.colors.accent
         : isOutline
             ? theme.colors.primary
-            : theme.colors.text;
+            : 'transparent';
+
+    const baseTextColor = isPrimary
+        ? theme.colors.white
+        : isSecondary
+            ? theme.colors.accent
+            : isOutline
+                ? theme.colors.primary
+                : theme.colors.text;
 
     const containerStyles = [
         styles.container,
         {
-            backgroundColor: disabled ? theme.colors.textSecondary : baseBackgroundColor,
+            backgroundColor: disabled ? theme.colors.border : baseBackgroundColor,
             paddingVertical: size === 'sm' ? 8 : size === 'lg' ? 16 : 12,
             paddingHorizontal: size === 'sm' ? 16 : 24,
-            borderRadius: theme.borderRadius.md,
-            borderWidth: isOutline ? 1 : 0,
-            borderColor: isOutline ? theme.colors.primary : 'transparent',
+            borderRadius: theme.borderRadius.xl,
+            borderWidth: isOutline || isSecondary ? 2 : 0,
+            borderColor: disabled ? theme.colors.border : baseBorderColor,
             width: fullWidth ? '100%' : 'auto',
             opacity: disabled ? 0.7 : 1,
         },
+        isPrimary && theme.shadows.md,
         style,
     ];
 
@@ -65,7 +74,7 @@ export const Button = ({
                     <Text
                         weight="bold"
                         size={size === 'lg' ? 'lg' : 'md'}
-                        style={{ color: baseTextColor, ...textStyle }}
+                        style={[{ color: baseTextColor }, textStyle]}
                     >
                         {title}
                     </Text>
@@ -81,7 +90,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        ...theme.shadows.sm,
+        marginTop: theme.spacing.sm,
     },
     content: {
         flexDirection: 'row',

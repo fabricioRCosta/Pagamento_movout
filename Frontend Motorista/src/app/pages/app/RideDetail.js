@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
+import Text from '../../layouts/Components/Text';
 import AppLayout from '../../layouts/Layouts/AppLayout';
 import Card from '../../layouts/Components/Card';
-import MyButton from '../../layouts/Components/button';
+import Button from '../../layouts/Components/button';
 import { theme } from '../../theme';
 import axios from 'axios';
 import { API_BASE_URL, WS_BASE_URL } from '../../../api/config';
@@ -376,22 +377,22 @@ export default function RideDetail({ navigation, route }) {
                     </View>
                 )}
 
-                <MyButton
+                <Button
                     title="Abrir rota no mapa"
                     onPress={handleOpenExternalRoute}
                     style={{ marginTop: theme.spacing.md }}
                 />
 
-                <MyButton
+                <Button
                     title="Abrir chat"
-                    type="secondary"
+                    variant="secondary"
                     onPress={() => navigation.navigate('ChatDetail', { chatId: rideId, name: 'Cliente' })}
                     style={{ marginTop: theme.spacing.md }}
                 />
 
-                <MyButton
+                <Button
                     title="Relatar um Problema"
-                    type="secondary"
+                    variant="secondary"
                     onPress={() => alert('Suporte acionado.')}
                     style={{ marginTop: theme.spacing.lg, marginBottom: 40 }}
                 />

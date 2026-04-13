@@ -1,21 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar } from 'react-native';
+import { View, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import Header from '../Components/Header';
 import { theme } from '../../theme';
 
-export default function AppLayout({ children, title, scrollable = false, rightComponent, onBack }) {
-  const ContentWrapper = scrollable ? ScrollView : View;
-  const contentStyle = scrollable ? styles.scrollContent : styles.flexContent;
-
+export default function AppLayout({ children, title, scrollable = false, onBack }) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
-      <Header title={title} rightComponent={rightComponent} onBack={onBack} />
-      <ContentWrapper contentContainerStyle={scrollable ? styles.scrollContentContainer : undefined} style={contentStyle}>
-        <View style={styles.innerContent}>
+      <Header title={title} onBack={onBack} />
+      {scrollable ? (
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {children}
+        </ScrollView>
+      ) : (
+        <View style={styles.content}>
           {children}
         </View>
-      </ContentWrapper>
+      )}
     </View>
   );
 }
@@ -23,22 +27,14 @@ export default function AppLayout({ children, title, scrollable = false, rightCo
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background, // Changed to white as requested
+    backgroundColor: theme.colors.background,
   },
-  flexContent: {
+  content: {
     flex: 1,
+    padding: theme.spacing.lg,
   },
   scrollContent: {
-    flex: 1,
+    padding: theme.spacing.lg,
+    paddingBottom: 40,
   },
-  scrollContentContainer: {
-    paddingBottom: theme.spacing.xl,
-  },
-  innerContent: {
-    flex: 1,
-    width: '100%',
-    maxWidth: 600,
-    alignSelf: 'center',
-    paddingHorizontal: theme.spacing.md,
-  }
 });

@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { theme } from '../../theme';
+import Text from './Text';
 
 export default function Seletor({ titulo, opcoes, valorSelecionado, aoSelecionar }) {
   return (
     <View style={styles.container}>
-      {titulo && <Text style={styles.title}>{titulo}</Text>}
+      {titulo && <Text size="md" weight="bold" color="text" style={styles.title}>{titulo}</Text>}
       <View style={styles.optionsContainer}>
         {opcoes.map((opcao) => {
           const isSelected = valorSelecionado === opcao;
@@ -20,7 +22,11 @@ export default function Seletor({ titulo, opcoes, valorSelecionado, aoSelecionar
               <View style={[styles.radioCircle, isSelected && styles.selectedRadioCircle]}>
                 {isSelected && <View style={styles.selectedInnerCircle} />}
               </View>
-              <Text style={[styles.optionText, isSelected && styles.selectedOptionText]}>
+              <Text
+                size="sm"
+                weight={isSelected ? 'medium' : 'regular'}
+                color={isSelected ? 'secondary' : 'textSecondary'}
+              >
                 {opcao}
               </Text>
             </TouchableOpacity>
@@ -34,60 +40,49 @@ export default function Seletor({ titulo, opcoes, valorSelecionado, aoSelecionar
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: theme.spacing.lg,
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
+    marginBottom: theme.spacing.sm,
   },
   optionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: theme.spacing.sm,
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: theme.colors.surface,
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
+    borderRadius: theme.borderRadius.xl,
+    marginRight: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: theme.colors.border,
   },
   selectedOption: {
-    backgroundColor: '#E8F0FE',
-    borderColor: '#007BFF',
+    backgroundColor: '#E0EDFF',
+    borderColor: theme.colors.secondary,
   },
   radioCircle: {
     height: 18,
     width: 18,
     borderRadius: 9,
     borderWidth: 2,
-    borderColor: '#AAAAAA',
+    borderColor: theme.colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
+    marginRight: theme.spacing.sm,
   },
   selectedRadioCircle: {
-    borderColor: '#007BFF',
+    borderColor: theme.colors.secondary,
   },
   selectedInnerCircle: {
     height: 10,
     width: 10,
     borderRadius: 5,
-    backgroundColor: '#007BFF',
-  },
-  optionText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  selectedOptionText: {
-    color: '#007BFF',
-    fontWeight: '600',
+    backgroundColor: theme.colors.secondary,
   },
 });

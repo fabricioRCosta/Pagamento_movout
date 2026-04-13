@@ -1,20 +1,36 @@
 export const colors = {
-    primary: '#F59E0B', // Orange from the background/logo accent
-    primaryDark: '#A08350', // Darker shade for press states
-    secondary: '#2A8CF5', // Blue from logo
-    secondaryLight: '#4C7FB5',
-    background: '#FFFFFF', // Clean white background for content
-    surface: '#e5e9eeff', // Slightly more visible grey for cards (Gray-200 vibe)
-    text: '#1A1A1A', // Primary text
-    textSecondary: '#4F6175', // Secondary text
-    border: '#CBD5E1',
-    error: '#DC3545',
-    success: '#28A745',
-    white: '#FFFFFF',
-    black: '#000000',
-    grey: '#E2E8F0',
-    transparent: 'transparent',
-    // Specific UI colors
-    orangeBackground: '#F59E0B',
-    logoDark: '#b5d7ffff',
+  // Brand
+  primary: '#F59E0B',
+  primaryDark: '#D97706',
+  primaryLight: '#FDE68A',
+  accent: '#1E293B',        // Slate escuro premium (substitui preto puro)
+  secondary: '#3B82F6',
+  secondaryLight: '#DBEAFE',
+
+  // Backgrounds
+  background: '#F8FAFC',
+  surface: '#FFFFFF',
+  surfaceAlt: '#F1F5F9',
+
+  // Text
+  text: '#0F172A',
+  textSecondary: '#64748B',
+
+  // Borders & Lines
+  border: '#E2E8F0',
+
+  // Status
+  error: '#EF4444',
+  success: '#10B981',
+  warning: '#F59E0B',
+
+  // Base
+  white: '#FFFFFF',
+  black: '#0F172A',
+  grey: '#E2E8F0',
+  transparent: 'transparent',
+
+  // Specific UI
+  orangeBackground: '#F59E0B',
+  logoDark: '#334155',
 };

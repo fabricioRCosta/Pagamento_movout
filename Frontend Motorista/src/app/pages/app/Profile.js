@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import Text from '../../layouts/Components/Text';
 import Card from '../../layouts/Components/Card';
 import AppLayout from '../../layouts/Layouts/AppLayout';
 import * as ImagePicker from 'expo-image-picker';
@@ -105,7 +106,7 @@ export default function Profile({ navigation }) {
           <View style={styles.statsItem}>
             <Card style={styles.statsCard}>
               <Text style={styles.statsLabel}>STATUS</Text>
-              <Text style={[styles.statsValue, { fontSize: 18, color: '#10B981' }]}>ATIVO</Text>
+              <Text style={[styles.statsValue, { fontSize: 18, color: theme.colors.success }]}>ATIVO</Text>
               <Text style={styles.statsSub}>Conta verificada</Text>
             </Card>
           </View>
@@ -142,7 +143,7 @@ export default function Profile({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.menuItem, { marginTop: 20 }]} onPress={() => navigation.navigate('Login')}>
-            <View style={[styles.menuIconContainer, { backgroundColor: '#fad0d0ff' }]}>
+            <View style={[styles.menuIconContainer, { backgroundColor: '#FEE2E2' }]}>
               <Text style={styles.menuIcon}>🚪</Text>
             </View>
             <Text style={[styles.menuText, { color: theme.colors.error }]}>Sair do Aplicativo</Text>
@@ -165,13 +166,13 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: theme.colors.surface
+    backgroundColor: theme.colors.surfaceAlt,
   },
   editBadge: {
     position: 'absolute',
     right: 0,
     bottom: 0,
-    backgroundColor: theme.colors.black,
+    backgroundColor: theme.colors.accent,
     width: 28,
     height: 28,
     borderRadius: 14,
@@ -189,12 +190,12 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: theme.typography.fontSizes.xl,
     fontWeight: theme.typography.fontWeights.bold,
-    color: theme.colors.black
+    color: theme.colors.text,
   },
   userSince: {
     fontSize: theme.typography.fontSizes.sm,
     color: theme.colors.textSecondary,
-    marginTop: 2
+    marginTop: 2,
   },
   ratingRow: {
     flexDirection: 'row',
@@ -204,17 +205,13 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: theme.typography.fontSizes.sm,
     fontWeight: theme.typography.fontWeights.bold,
-    color: theme.colors.black,
+    color: theme.colors.text,
     marginRight: 4,
-  },
-  reviewsCount: {
-    fontSize: theme.typography.fontSizes.xs,
-    color: theme.colors.textSecondary,
   },
   statsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: theme.spacing.sm
+    marginBottom: theme.spacing.sm,
   },
   statsItem: {
     width: '48%',
@@ -226,26 +223,27 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: theme.typography.fontWeights.bold,
     color: theme.colors.textSecondary,
-    marginBottom: 4
+    marginBottom: 4,
+    letterSpacing: 1,
   },
   statsValue: {
     fontSize: theme.typography.fontSizes.xl,
     fontWeight: theme.typography.fontWeights.bold,
-    color: theme.colors.black
+    color: theme.colors.text,
   },
   statsSub: {
     fontSize: 10,
-    color: theme.colors.textSecondary
+    color: theme.colors.textSecondary,
   },
   earningsCard: {
     padding: theme.spacing.lg,
-    marginBottom: theme.spacing.lg
+    marginBottom: theme.spacing.lg,
   },
   earningsValue: {
     fontSize: theme.typography.fontSizes.display,
     fontWeight: theme.typography.fontWeights.extraBold,
-    color: theme.colors.black,
-    marginVertical: 4
+    color: theme.colors.text,
+    marginVertical: 4,
   },
   earningsFooter: {
     flexDirection: 'row',
@@ -268,16 +266,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: theme.spacing.md,
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.xl,
     marginBottom: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
     ...theme.shadows.sm,
   },
   menuIconContainer: {
     width: 40,
     height: 40,
-    borderRadius: 12,
-    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.surfaceAlt,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: theme.spacing.md,
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   },
   menuArrow: {
     fontSize: 14,
-    color: theme.colors.border,
+    color: theme.colors.textSecondary,
     fontWeight: 'bold',
   },
 });

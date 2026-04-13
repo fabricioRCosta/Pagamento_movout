@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from '../../theme';
@@ -32,7 +32,6 @@ const Register = ({ onNavigate, onLogin }) => {
   };
 
   const handleSubmit = async () => {
-    // Validações
     if (!formData.nome || !formData.email || !formData.telefone || !formData.cpf || !formData.senha || !formData.confirmarSenha) {
       setErro('Por favor, preencha todos os campos');
       return;
@@ -71,7 +70,6 @@ const Register = ({ onNavigate, onLogin }) => {
 
       if (response.ok) {
         setLoading(false);
-        // Sucesso - Redirecionar para login ou login automático
         alert('Cadastro realizado com sucesso!');
         onNavigate('login');
       } else {
@@ -89,20 +87,17 @@ const Register = ({ onNavigate, onLogin }) => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
 
           <TouchableOpacity onPress={() => onNavigate('login')} style={styles.backButton}>
             <ArrowLeft color={theme.colors.white} size={24} />
           </TouchableOpacity>
 
           <View style={styles.header}>
-            <Logo size="lg" />
-            <Text variant="subtitle" color="logoDark" style={styles.subtitle}>
-              crie sua conta
-            </Text>
+            <Logo size="md" />
           </View>
 
           <Card style={styles.card}>
@@ -138,21 +133,26 @@ const Register = ({ onNavigate, onLogin }) => {
               keyboardType="phone-pad"
             />
 
-            <Input
-              label="Senha"
-              placeholder="••••••••"
-              value={formData.senha}
-              onChangeText={(t) => handleChange('senha', t)}
-              secureTextEntry
-            />
-
-            <Input
-              label="Confirmar senha"
-              placeholder="••••••••"
-              value={formData.confirmarSenha}
-              onChangeText={(t) => handleChange('confirmarSenha', t)}
-              secureTextEntry
-            />
+            <View style={styles.row}>
+              <View style={{ flex: 1, marginRight: theme.spacing.sm }}>
+                <Input
+                  label="Senha"
+                  placeholder="••••••••"
+                  value={formData.senha}
+                  onChangeText={(t) => handleChange('senha', t)}
+                  secureTextEntry
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Input
+                  label="Confirmar"
+                  placeholder="••••••••"
+                  value={formData.confirmarSenha}
+                  onChangeText={(t) => handleChange('confirmarSenha', t)}
+                  secureTextEntry
+                />
+              </View>
+            </View>
 
             {erro ? <Text color="error" size="sm" style={styles.error}>{erro}</Text> : null}
 
@@ -161,12 +161,11 @@ const Register = ({ onNavigate, onLogin }) => {
               onPress={handleSubmit}
               loading={loading}
               variant="primary"
-              style={{ ...styles.button, backgroundColor: 'black' }}
             />
           </Card>
 
           <TouchableOpacity onPress={() => onNavigate('login')} style={styles.cancelButton}>
-            <Text color="black" weight="bold" style={styles.cancelText}>Cancelar</Text>
+            <Text color="white" weight="bold" style={styles.cancelText}>Voltar para o Login</Text>
           </TouchableOpacity>
 
         </ScrollView>
@@ -181,24 +180,58 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.orangeBackground,
   },
   keyboardView: { flex: 1 },
-  scrollContent: { padding: 24, paddingTop: 48, paddingBottom: 40 },
+  scrollContent: {
+    padding: theme.spacing.lg,
+    paddingTop: 48,
+    paddingBottom: 40,
+    alignItems: 'center',
+  },
   backButton: {
-    width: 40, height: 40, backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 16
+    width: 44,
+    height: 44,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: theme.borderRadius.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+    alignSelf: 'flex-start',
   },
-  header: { alignItems: 'center', marginBottom: 24 },
-  subtitle: { marginTop: 8 },
-  card: { marginBottom: 24, paddingVertical: 24 },
+  header: {
+    alignItems: 'center',
+    marginBottom: theme.spacing.lg,
+  },
+  appName: {
+    marginTop: theme.spacing.sm,
+    color: theme.colors.white,
+    letterSpacing: 3,
+  },
+  subtitle: {
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 4,
+  },
+  card: {
+    paddingVertical: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.lg,
+    width: '100%',
+    maxWidth: 450,
+    ...theme.shadows.lg,
+  },
+  row: {
+    flexDirection: 'row',
+    width: '100%',
+  },
   error: {
-    marginBottom: 16, textAlign: 'center'
-  },
-  button: {
-    marginTop: 8,
+    marginBottom: theme.spacing.md,
+    textAlign: 'center',
   },
   cancelButton: {
-    padding: 16, borderRadius: 16, alignItems: 'center'
+    padding: theme.spacing.md,
+    marginTop: theme.spacing.md,
+    alignItems: 'center',
   },
-  cancelText: { textDecorationLine: 'underline' }
+  cancelText: {
+    textDecorationLine: 'underline',
+  },
 });
 
 export default Register;

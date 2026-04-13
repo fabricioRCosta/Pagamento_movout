@@ -16,7 +16,6 @@ const ForgotPassword = ({ onNavigate }) => {
     const handleSubmit = () => {
         if (!email) return;
         setLoading(true);
-        // Simulate API call
         setTimeout(() => {
             setLoading(false);
             setSent(true);
@@ -27,64 +26,68 @@ const ForgotPassword = ({ onNavigate }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={styles.keyboardView}
             >
-                <ScrollView contentContainerStyle={styles.scrollContent}>
+                <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
 
                     <TouchableOpacity onPress={() => onNavigate('login')} style={styles.backButton}>
                         <ArrowLeft color={theme.colors.white} size={24} />
                     </TouchableOpacity>
 
                     <View style={styles.header}>
-                        <Logo size="lg" />
-                        <Text variant="subtitle" color="logoDark" style={styles.subtitle}>
-                            recuperar senha
+                        <Logo size="md" />
+                        <Text size="display" weight="bold" color="white" style={styles.title}>
+                            Recuperar Senha
+                        </Text>
+                        <Text size="md" align="center" style={styles.subtitle}>
+                            Enviaremos um link para o seu e-mail
                         </Text>
                     </View>
 
                     <Card style={styles.card}>
                         {!sent ? (
                             <>
-                                <Text style={styles.description}>
-                                    Digite seu email cadastrado para receber as instruções de recuperação de senha.
-                                </Text>
-
                                 <Input
-                                    label="Email"
+                                    label="Seu e-mail cadastrado"
                                     placeholder="usuario@exemplo.com"
                                     value={email}
                                     onChangeText={setEmail}
                                     autoCapitalize="none"
                                     keyboardType="email-address"
-                                    leftIcon={<Text size="lg">✉️</Text>}
                                 />
 
                                 <Button
-                                    title="Enviar"
+                                    title="Enviar Link"
                                     onPress={handleSubmit}
                                     loading={loading}
-                                    style={{ ...styles.button, backgroundColor: 'black' }}
                                     variant="primary"
                                 />
                             </>
                         ) : (
                             <View style={styles.successContainer}>
                                 <Text size="xl" style={styles.successIcon}>✅</Text>
-                                <Text weight="bold" size="lg" style={styles.successTitle}>Email Enviado!</Text>
-                                <Text style={styles.successText}>
+                                <Text weight="bold" size="lg" color="text" style={styles.successTitle}>Email Enviado!</Text>
+                                <Text color="textSecondary" style={styles.successText}>
                                     Verifique sua caixa de entrada para redefinir sua senha.
                                 </Text>
                                 <Button
                                     title="Voltar ao Login"
                                     onPress={() => onNavigate('login')}
-                                    variant="outline"
-                                    style={{ ...styles.button, borderColor: 'black' }}
-                                    textStyle={{ color: 'black' }}
+                                    variant="secondary"
                                 />
                             </View>
                         )}
                     </Card>
+
+                    <TouchableOpacity
+                        style={{ marginTop: theme.spacing.lg }}
+                        onPress={() => onNavigate('login')}
+                    >
+                        <Text size="sm" weight="bold" color="white" style={styles.backText}>
+                            Voltar para o Login
+                        </Text>
+                    </TouchableOpacity>
 
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -99,54 +102,56 @@ const styles = StyleSheet.create({
     },
     keyboardView: { flex: 1 },
     scrollContent: {
-        padding: 24,
+        padding: theme.spacing.lg,
         paddingTop: 48,
+        alignItems: 'center',
     },
     backButton: {
-        width: 40,
-        height: 40,
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        borderRadius: 12,
+        width: 44,
+        height: 44,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        borderRadius: theme.borderRadius.lg,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16
+        marginBottom: theme.spacing.md,
+        alignSelf: 'flex-start',
     },
     header: {
         alignItems: 'center',
-        marginBottom: 32
+        marginBottom: theme.spacing.xl,
+    },
+    title: {
+        marginTop: theme.spacing.sm,
     },
     subtitle: {
-        marginTop: 8,
-        letterSpacing: 0.5,
+        color: 'rgba(255,255,255,0.8)',
+        marginTop: theme.spacing.sm,
     },
     card: {
-        paddingVertical: 32,
-    },
-    description: {
-        marginBottom: 24,
-        color: theme.colors.textSecondary,
-        textAlign: 'center'
-    },
-    button: {
-        marginTop: 16,
+        paddingVertical: theme.spacing.xl,
+        paddingHorizontal: theme.spacing.lg,
+        width: '100%',
+        maxWidth: 400,
+        ...theme.shadows.lg,
     },
     successContainer: {
         alignItems: 'center',
-        padding: 16
+        padding: theme.spacing.md,
     },
     successIcon: {
-        marginBottom: 16,
-        fontSize: 48
+        marginBottom: theme.spacing.md,
+        fontSize: 48,
     },
     successTitle: {
-        marginBottom: 8,
-        color: theme.colors.textPrimary
+        marginBottom: theme.spacing.sm,
     },
     successText: {
         textAlign: 'center',
-        color: theme.colors.textSecondary,
-        marginBottom: 24
-    }
+        marginBottom: theme.spacing.lg,
+    },
+    backText: {
+        textDecorationLine: 'underline',
+    },
 });
 
 export default ForgotPassword;

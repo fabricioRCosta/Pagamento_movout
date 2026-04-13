@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import Text from '../../layouts/Components/Text';
 import AppLayout from '../../layouts/Layouts/AppLayout';
 
 export default function ChatList({ navigation }) {

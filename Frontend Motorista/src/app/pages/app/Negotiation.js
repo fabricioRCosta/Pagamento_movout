@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import Text from '../../layouts/Components/Text';
 import AppLayout from '../../layouts/Layouts/AppLayout';
-import MyButton from '../../layouts/Components/button';
+import Button from '../../layouts/Components/button';
 import Card from '../../layouts/Components/Card';
 import { theme } from '../../theme';
 import axios from 'axios';
@@ -238,7 +239,7 @@ export default function Negotiation({ navigation, route }) {
           </View>
         </View>
         {frete?.status?.toLowerCase() === 'aceito' && (
-          <MyButton
+          <Button
             title="Ver rota"
             onPress={() => navigation.replace('RideDetail', { rideId: freteId })}
             style={{ marginTop: theme.spacing.sm }}
@@ -257,8 +258,8 @@ export default function Negotiation({ navigation, route }) {
               (typeof driverLocation !== 'undefined' && driverLocation)
                 ? { ...driverLocation, latitudeDelta: 0.03, longitudeDelta: 0.03 }
                 : (typeof originPoint !== 'undefined' && originPoint)
-                ? { ...originPoint, latitudeDelta: 0.03, longitudeDelta: 0.03 }
-                : { latitude: -15.601, longitude: -56.097, latitudeDelta: 0.08, longitudeDelta: 0.08 }
+                  ? { ...originPoint, latitudeDelta: 0.03, longitudeDelta: 0.03 }
+                  : { latitude: -15.601, longitude: -56.097, latitudeDelta: 0.08, longitudeDelta: 0.08 }
             }
             showsUserLocation
           >
@@ -315,10 +316,10 @@ export default function Negotiation({ navigation, route }) {
             </View>
           </View>
 
-          <MyButton
-            title={sending ? "Enviando..." : "Enviar Proposta"}
+          <Button
+            title="Enviar Proposta"
             onPress={handleSendProposal}
-            disabled={sending}
+            loading={sending}
           />
         </Card>
       )}
