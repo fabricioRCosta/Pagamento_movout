@@ -45,14 +45,14 @@ export default function ForgotPassword({ navigation }) {
                 autoCapitalize="none"
                 value={email}
                 onChangeText={setEmail}
-                leftIcon={<Text size="lg">✉️</Text>}
+                leftIcon={<Text size="lg"></Text>}
               />
 
               <Button title="Enviar Link" onPress={handleSubmit} loading={loading} variant="primary" />
             </>
           ) : (
             <View style={styles.successContainer}>
-              <Text size="xl" style={{ fontSize: 48 }}>✅</Text>
+              <Text size="xl" style={{ fontSize: 48 }}></Text>
               <Text weight="bold" size="lg" color="text" style={{ marginTop: theme.spacing.md }}>Email Enviado!</Text>
               <Text color="textSecondary" style={{ textAlign: 'center', marginTop: theme.spacing.sm, marginBottom: theme.spacing.lg }}>
                 Verifique sua caixa de entrada para redefinir sua senha.

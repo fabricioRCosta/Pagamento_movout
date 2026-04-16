@@ -54,7 +54,7 @@ export default function Login({ navigation }) {
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            leftIcon={<Text size="lg">✉️</Text>}
+            leftIcon={<Text size="lg"></Text>}
           />
 
           <Input
@@ -63,7 +63,7 @@ export default function Login({ navigation }) {
             value={senha}
             onChangeText={setSenha}
             secureTextEntry
-            leftIcon={<Text size="lg">🔒</Text>}
+            leftIcon={<Text size="lg"></Text>}
           />
 
           {erro ? (
