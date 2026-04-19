@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import Text from '../../layouts/Components/Text';
 import AppLayout from '../../layouts/Layouts/AppLayout';
-import { WS_BASE_URL } from '../../../api/config';
+import { API_BASE_URL, WS_BASE_URL } from '../../../api/config';
 
 export default function ChatDetail({ route, navigation }) {
   const { name, chatId } = route.params || { name: 'Chat', chatId: null };
@@ -24,6 +24,21 @@ export default function ChatDetail({ route, navigation }) {
   React.useEffect(() => {
     if (!chatId) return;
 
+    // Busca historico via GET REST antes do WebSocket e carrega no layout
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/ws/chat/${chatId}/historico?role=driver`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) setMessages(data);
+        }
+      } catch (err) {
+        console.error("Erro ao puxar mensagens do banco:", err);
+      }
+    };
+
+    fetchHistory();
+
     // Conecta ao websocket do chat usando o ID do frete
     const wsUrl = `${WS_BASE_URL}/ws/chat/${chatId}`;
     ws.current = new WebSocket(wsUrl);
@@ -33,11 +48,7 @@ export default function ChatDetail({ route, navigation }) {
     ws.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        // Só adiciona se a mensagem não for dele mesmo para não duplicar,
-        // ou você pode simplesmente adicionar tudo que vem do servidor.
-        // Vamos adicionar tudo para garantir consistência.
         setMessages((prev) => {
-          // Evita adicionar duplicado caso receba o próprio eco
           if (prev.find(m => m.id === data.id)) return prev;
           return [...prev, data];
         });
@@ -48,6 +59,7 @@ export default function ChatDetail({ route, navigation }) {
 
     return () => {
       ws.current?.close();
+      setMessages([]);
     };
   }, [chatId]);
 
@@ -55,14 +67,11 @@ export default function ChatDetail({ route, navigation }) {
     if (!inputText.trim()) return;
 
     const newMsg = {
-      id: String(Date.now()),
       text: inputText.trim(),
       sender: 'driver',
-      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
     };
 
-    // Atualiza localmente imediatamente
-    setMessages(prev => [...prev, newMsg]);
+    // Remove insercao local (otimista) para que backend atribua ID unico
     setInputText('');
 
     // Envia para o servidor WebSocket

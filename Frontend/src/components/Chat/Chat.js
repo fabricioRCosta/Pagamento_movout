@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Keyboard
 import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowLeft, Send } from 'lucide-react-native';
 import { theme } from '../../theme';
-import { WS_BASE_URL } from '../../api/config';
+import { API_BASE_URL, WS_BASE_URL } from '../../api/config';
 
 const Chat = ({ onNavigate, freteId, route, navigation }) => {
     const currentFreteId = route?.params?.freteId || freteId || 1;
@@ -14,6 +14,20 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
 
     useEffect(() => {
         if (!currentFreteId) return;
+
+        const fetchHistory = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/ws/chat/${currentFreteId}/historico?role=user`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) setMessages(data);
+                }
+            } catch (err) {
+                console.error("Erro buscando historico:", err);
+            }
+        };
+
+        fetchHistory();
 
         const wsUrl = `${WS_BASE_URL}/ws/chat/${currentFreteId}`;
         ws.current = new WebSocket(wsUrl);
@@ -34,6 +48,7 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
 
         return () => {
             if (ws.current) ws.current.close();
+            setMessages([]);
         };
     }, [currentFreteId]);
 
@@ -41,13 +56,10 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
         if (!inputText.trim()) return;
 
         const newMessage = {
-            id: Date.now().toString(),
             text: inputText.trim(),
             sender: 'user',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
 
-        setMessages((prev) => [...prev, newMessage]);
         setInputText('');
 
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {

@@ -50,7 +50,7 @@ def create_db_and_tables():
     Cria as tabelas definidas nos modelos SQLModel.
     """
     # Importar modelos para registrar no SQLModel.metadata
-    from app.models.models import Motorista, PedidoFrete, PropostaFrete
+    from app.models.models import Motorista, PedidoFrete, PropostaFrete, MensagemChat
     SQLModel.metadata.create_all(engine)
     _ensure_pedidofrete_columns()
 

@@ -1,8 +1,6 @@
 from typing import Optional, List
-
+from datetime import datetime
 from sqlmodel import Field, SQLModel, Relationship
-
-
 class Motorista(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nome: str
@@ -43,3 +41,11 @@ class PedidoFrete(SQLModel, table=True):
 
     # Relacionamento com PropostaFrete
     propostas: List[PropostaFrete] = Relationship(back_populates="frete")
+
+
+class MensagemChat(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    frete_id: int = Field(index=True)
+    remetente: str
+    texto: str
+    data_hora: datetime = Field(default_factory=datetime.utcnow)
