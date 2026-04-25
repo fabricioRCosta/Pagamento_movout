@@ -1,30 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   StyleSheet,
-  ScrollView,
+  FlatList,
   TextInput,
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
-  SafeAreaView
+  StatusBar,
 } from 'react-native';
 import Text from '../../layouts/Components/Text';
-import AppLayout from '../../layouts/Layouts/AppLayout';
+import { theme } from '../../theme';
 import { API_BASE_URL, WS_BASE_URL } from '../../../api/config';
 
 export default function ChatDetail({ route, navigation }) {
   const { name, chatId } = route.params || { name: 'Chat', chatId: null };
 
-  // Estados para mensagens e input
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
-  const ws = React.useRef(null);
+  const ws = useRef(null);
+  const flatListRef = useRef(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!chatId) return;
 
-    // Busca historico via GET REST antes do WebSocket e carrega no layout
     const fetchHistory = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/ws/chat/${chatId}/historico?role=driver`);
@@ -39,7 +38,6 @@ export default function ChatDetail({ route, navigation }) {
 
     fetchHistory();
 
-    // Conecta ao websocket do chat usando o ID do frete
     const wsUrl = `${WS_BASE_URL}/ws/chat/${chatId}`;
     ws.current = new WebSocket(wsUrl);
 
@@ -71,138 +69,314 @@ export default function ChatDetail({ route, navigation }) {
       sender: 'driver',
     };
 
-    // Remove insercao local (otimista) para que backend atribua ID unico
     setInputText('');
 
-    // Envia para o servidor WebSocket
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(newMsg));
     }
   };
 
+  const renderMessage = ({ item: msg, index }) => {
+    const isMe = msg.sender === 'driver';
+    const time = msg.time || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    return (
+      <View style={[styles.msgRow, isMe && styles.msgRowRight]}>
+        <View style={[styles.bubble, isMe ? styles.bubbleRight : styles.bubbleLeft]}>
+          <Text style={[styles.bubbleText, isMe ? styles.bubbleTextRight : styles.bubbleTextLeft]}>
+            {msg.text}
+          </Text>
+          <Text style={[styles.bubbleTime, isMe ? styles.bubbleTimeRight : styles.bubbleTimeLeft]}>
+            {time}{isMe ? ' ✓✓' : ''}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
-    <AppLayout
-      title={name}
-      onBack={() => navigation.goBack()}
-      rightComponent={
-        <TouchableOpacity onPress={() => navigation.navigate('Negotiation')}>
-          <Text style={{ fontSize: 22 }}>🤝</Text>
-        </TouchableOpacity>
-      }
-    >
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#FF914D' }}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        >
-          <View style={styles.chatContainer}>
-            <ScrollView
-              style={styles.scrollWrapper}
-              contentContainerStyle={styles.scrollContent}
-              keyboardShouldPersistTaps="handled"
-            >
-              {messages.map((msg) => (
-                <View key={msg.id} style={msg.sender === 'driver' ? styles.msgRight : styles.msgLeft}>
-                  <Text style={msg.sender === 'driver' ? styles.msgTextRight : styles.msgTextLeft}>
-                    {msg.text}
-                  </Text>
-                  <Text style={msg.sender === 'driver' ? styles.msgTimeRight : styles.msgTimeLeft}>
-                    {msg.time} {msg.sender === 'driver' ? '✓✓' : ''}
-                  </Text>
-                </View>
-              ))}
-            </ScrollView>
+    <View style={styles.screen}>
+      <StatusBar barStyle="light-content" backgroundColor="#f59e0bff" />
+
+      {/* Header */}
+      <View style={styles.headerSafe}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Text weight="bold" style={styles.backIcon}>{'<'}</Text>
+          </TouchableOpacity>
+
+          <View style={styles.headerCenter}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{name ? name.charAt(0).toUpperCase() : '?'}</Text>
+            </View>
+            <View>
+              <Text weight="bold" style={styles.headerTitle}>{name}</Text>
+              <Text style={styles.headerSub}>Online agora</Text>
+            </View>
           </View>
 
-          <View style={styles.inputArea}>
-            <TextInput
-              placeholder="Digite aqui..."
-              style={styles.input}
-              placeholderTextColor="#999"
-              value={inputText}
-              onChangeText={setInputText}
-              multiline={false}
-              onSubmitEditing={handleSend}
-            />
-            <TouchableOpacity style={styles.sendButton} activeOpacity={0.7} onPress={handleSend}>
-              <Text style={styles.sendButtonText}>Enviar</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={() => navigation.navigate('Negotiation')} style={styles.actionBtn}>
+            <Text style={{ fontSize: 18 }}>🤝</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </AppLayout>
+      {/* Chat body */}
+      <KeyboardAvoidingView
+        style={styles.body}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={0}
+      >
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item, i) => item.id?.toString() || i.toString()}
+          contentContainerStyle={styles.messagesList}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyEmoji}>💬</Text>
+              <Text style={styles.emptyText}>Nenhuma mensagem ainda</Text>
+              <Text style={styles.emptyHint}>Comece a conversa sobre o frete!</Text>
+            </View>
+          }
+        />
+
+        {/* Input bar */}
+        <View style={styles.inputBar}>
+          <TextInput
+            placeholder="Digite sua mensagem..."
+            style={styles.input}
+            placeholderTextColor="#BCBCBC"
+            value={inputText}
+            onChangeText={setInputText}
+            multiline
+            maxLength={500}
+          />
+          <TouchableOpacity
+            style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
+            activeOpacity={0.7}
+            onPress={handleSend}
+            disabled={!inputText.trim()}
+          >
+            <Text style={styles.sendBtnText}>➤</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
+const HEADER_BG = '#f59e0bff';
+
 const styles = StyleSheet.create({
-  chatContainer: {
+  screen: {
     flex: 1,
-    backgroundColor: '#F2F2F2',
-    marginHorizontal: 12,
-    marginTop: 20,
-    marginBottom: 8,
-    borderRadius: 25,
-    overflow: 'hidden',
+    backgroundColor: '#F5F5F7',
   },
-  scrollWrapper: { flex: 1 },
-  scrollContent: { padding: 15, flexGrow: 1 },
 
-  msgRight: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#FF914D',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 18,
-    borderBottomRightRadius: 2,
-    marginBottom: 12,
-    maxWidth: '80%',
+  /* ─── Header ─── */
+  headerSafe: {
+    backgroundColor: HEADER_BG,
+    paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
-  msgLeft: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#FFF',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 18,
-    borderBottomLeftRadius: 2,
-    marginBottom: 12,
-    maxWidth: '80%',
-    elevation: 1,
-  },
-  msgTextRight: { color: '#FFF', fontSize: 16, fontWeight: '500' },
-  msgTextLeft: { color: '#333', fontSize: 16 },
-  msgTimeRight: { color: '#FFF', fontSize: 10, alignSelf: 'flex-end', marginTop: 4, opacity: 0.8 },
-  msgTimeLeft: { color: '#999', fontSize: 10, alignSelf: 'flex-end', marginTop: 4 },
-
-  inputArea: {
+  header: {
+    height: 64,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
-    paddingHorizontal: 10,
-    paddingTop: 12,
-    marginBottom: 30,
-    paddingBottom: Platform.OS === 'ios' ? 35 : 15,
-    borderRadius: 20,
-    elevation: 10,
+    paddingHorizontal: 12,
   },
-  input: {
-    flex: 1,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 25,
-    height: 48,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    color: '#333',
-    marginRight: 10,
-  },
-  sendButton: {
-    backgroundColor: '#FF914D',
-    height: 48,
-    paddingHorizontal: 20,
-    borderRadius: 24,
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  sendButtonText: { color: '#FFF', fontWeight: 'bold', fontSize: 15 }
+  backIcon: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#FFF',
+  },
+  headerCenter: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 12,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#FFF',
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFF',
+  },
+  headerSub: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 1,
+  },
+  actionBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  /* ─── Body ─── */
+  body: {
+    flex: 1,
+    backgroundColor: '#F5F5F7',
+  },
+  messagesList: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+  },
+
+  /* ─── Empty state ─── */
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 40,
+  },
+  emptyEmoji: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  emptyText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#999',
+  },
+  emptyHint: {
+    fontSize: 14,
+    color: '#BCBCBC',
+    marginTop: 4,
+  },
+
+  /* ─── Message bubbles ─── */
+  msgRow: {
+    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  msgRowRight: {
+    justifyContent: 'flex-end',
+  },
+  bubble: {
+    maxWidth: '80%',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  bubbleRight: {
+    backgroundColor: HEADER_BG,
+    borderRadius: 20,
+    borderBottomRightRadius: 6,
+    elevation: 1,
+    shadowColor: HEADER_BG,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+  },
+  bubbleLeft: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderBottomLeftRadius: 6,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+  },
+  bubbleText: {
+    fontSize: 15,
+    lineHeight: 21,
+  },
+  bubbleTextRight: {
+    color: '#FFF',
+  },
+  bubbleTextLeft: {
+    color: '#333',
+  },
+  bubbleTime: {
+    fontSize: 11,
+    marginTop: 4,
+    alignSelf: 'flex-end',
+  },
+  bubbleTimeRight: {
+    color: 'rgba(255,255,255,0.7)',
+  },
+  bubbleTimeLeft: {
+    color: '#AAA',
+  },
+
+  /* ─── Input bar ─── */
+  inputBar: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+    backgroundColor: '#FFF',
+    borderTopWidth: 1,
+    borderTopColor: '#ECECEC',
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#F0F1F3',
+    borderRadius: 22,
+    minHeight: 44,
+    maxHeight: 100,
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 12,
+    fontSize: 15,
+    color: '#333',
+    marginRight: 10,
+  },
+  sendBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: HEADER_BG,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: HEADER_BG,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+  },
+  sendBtnDisabled: {
+    backgroundColor: '#DDD',
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  sendBtnText: {
+    color: '#FFF',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 2,
+  },
 });

@@ -23,12 +23,12 @@ COM OS DADOS DO LINK DO PAULO:
 COPIE E COLE OS DADOS ABAIXO NO ARQUIVO .env QUE VOCÊ CRIOU:
 
 _____________________________________________________
-DB_HOST=shuttle.proxy.rlwy.net
-DB_PORT=21256
-DB_USER=root
-DB_PASSWORD=RnqgCpaDxRsxYrdRmbPQuDuylhvSnkxN
-DB_NAME=railway
-DATABASE_URL=mysql+pymysql://root:RnqgCpaDxRsxYrdRmbPQuDuylhvSnkxN@shuttle.proxy.rlwy.net:21256/railway
+DB_HOST=gateway01.us-east-1.prod.aws.tidbcloud.com
+DB_PORT=4000
+DB_USER=3oHxWreigEQPkmB.root
+DB_PASSWORD=4R1KiaFlcRmCtqkY
+DB_NAME=movout7
+DATABASE_URL=mysql+pymysql://3oHxWreigEQPkmB.root:4R1KiaFlcRmCtqkY@gateway01.us-east-1.prod.aws.tidbcloud.com:4000/movout7?ssl_verify_cert=true&ssl_verify_identity=true
 _____________________________________________________
 
 EXECUTE O COMANDO '''python main.py''' NO DIRETÓRIO 

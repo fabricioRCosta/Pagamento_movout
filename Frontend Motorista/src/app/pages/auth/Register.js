@@ -16,6 +16,9 @@ export default function Register({ navigation }) {
     telefone: '',
     cpf: '',
     cnh: '',
+    veiculo: '',
+    marca: '',
+    placa: '',
     senha: '',
     confirmarSenha: ''
   });
@@ -28,8 +31,8 @@ export default function Register({ navigation }) {
   };
 
   const handleSubmit = async () => {
-    if (!formData.nome || !formData.email || !formData.telefone || !formData.cpf || !formData.cnh || !formData.senha || !formData.confirmarSenha) {
-      setErro('Preencha todos os campos');
+    if (!formData.nome || !formData.email || !formData.telefone || !formData.cpf || !formData.cnh || !formData.veiculo || !formData.marca || !formData.placa || !formData.senha || !formData.confirmarSenha) {
+      setErro('Preencha todos os campos, incluindo dados do veículo');
       return;
     }
 
@@ -50,6 +53,9 @@ export default function Register({ navigation }) {
           cpf: formData.cpf,
           telefone: formData.telefone,
           cnh: formData.cnh,
+          veiculo: formData.veiculo,
+          marca: formData.marca,
+          placa: formData.placa,
           tipo: 'motorista'
         }),
       });
@@ -73,9 +79,14 @@ export default function Register({ navigation }) {
     <AuthLayout>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ width: '100%', alignItems: 'center' }}
+        style={styles.keyboardView}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Text weight="bold" style={styles.backText}>{'<'}</Text>
           </TouchableOpacity>
@@ -96,6 +107,7 @@ export default function Register({ navigation }) {
               placeholder="João Pedro"
               value={formData.nome}
               onChangeText={(t) => handleChange('nome', t)}
+              leftIcon={<Text size="lg"></Text>}
             />
             <Input
               label="Email"
@@ -104,6 +116,7 @@ export default function Register({ navigation }) {
               onChangeText={(t) => handleChange('email', t)}
               autoCapitalize="none"
               keyboardType="email-address"
+              leftIcon={<Text size="lg"></Text>}
             />
             <Input
               label="CPF"
@@ -111,6 +124,7 @@ export default function Register({ navigation }) {
               value={formData.cpf}
               onChangeText={(t) => handleChange('cpf', t)}
               keyboardType="numeric"
+              leftIcon={<Text size="lg"></Text>}
             />
             <Input
               label="CNH"
@@ -118,6 +132,29 @@ export default function Register({ navigation }) {
               value={formData.cnh}
               onChangeText={(t) => handleChange('cnh', t)}
               keyboardType="numeric"
+              leftIcon={<Text size="lg"></Text>}
+            />
+            <Input
+              label="Tipo de Veículo"
+              placeholder="Caminhão, Van, etc."
+              value={formData.veiculo}
+              onChangeText={(t) => handleChange('veiculo', t)}
+              leftIcon={<Text size="lg"></Text>}
+            />
+            <Input
+              label="Marca do Veículo"
+              placeholder="Ex: Mercedes, Volkswagen"
+              value={formData.marca}
+              onChangeText={(t) => handleChange('marca', t)}
+              leftIcon={<Text size="lg"></Text>}
+            />
+            <Input
+              label="Placa do Veículo"
+              placeholder="ABC-1234"
+              value={formData.placa}
+              onChangeText={(t) => handleChange('placa', t)}
+              autoCapitalize="characters"
+              leftIcon={<Text size="lg"></Text>}
             />
             <Input
               label="Telefone"
@@ -125,25 +162,28 @@ export default function Register({ navigation }) {
               value={formData.telefone}
               onChangeText={(t) => handleChange('telefone', t)}
               keyboardType="phone-pad"
+              leftIcon={<Text size="lg"></Text>}
             />
 
             <View style={styles.row}>
-              <View style={{ flex: 1, marginRight: theme.spacing.sm }}>
+              <View style={styles.halfInput}>
                 <Input
                   label="Senha"
                   placeholder="••••••••"
                   value={formData.senha}
                   onChangeText={(t) => handleChange('senha', t)}
                   secureTextEntry
+                  leftIcon={<Text size="lg"></Text>}
                 />
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={styles.halfInputLast}>
                 <Input
                   label="Confirmar"
                   placeholder="••••••••"
                   value={formData.confirmarSenha}
                   onChangeText={(t) => handleChange('confirmarSenha', t)}
                   secureTextEntry
+                  leftIcon={<Text size="lg"></Text>}
                 />
               </View>
             </View>
@@ -168,11 +208,20 @@ export default function Register({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  keyboardView: {
+    flex: 1,
+    width: '100%',
+  },
+  scrollView: {
+    flex: 1,
+    width: '100%',
+  },
   scrollContent: {
+    flexGrow: 1,
     paddingTop: 20,
     paddingBottom: 40,
-    alignItems: 'center',
-    width: '100%',
+    // removed alignItems: 'center'
+    // removed width: '100%'
   },
   backButton: {
     width: 44,
@@ -193,6 +242,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: theme.spacing.lg,
+    alignSelf: 'center',
   },
   appName: {
     marginTop: theme.spacing.sm,
@@ -208,11 +258,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     width: '85%',
     maxWidth: 450,
+    alignSelf: 'center',
     ...theme.shadows.lg,
   },
   row: {
     flexDirection: 'row',
     width: '100%',
+  },
+  halfInput: {
+    flex: 1,
+    marginRight: theme.spacing.sm,
+  },
+  halfInputLast: {
+    flex: 1,
   },
   error: {
     marginBottom: theme.spacing.md,
@@ -222,6 +280,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     marginTop: theme.spacing.md,
     alignItems: 'center',
+    alignSelf: 'center',
   },
   cancelText: {
     textDecorationLine: 'underline',

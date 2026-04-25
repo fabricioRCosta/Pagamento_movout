@@ -17,17 +17,19 @@ export default function Login({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!email || !senha) {
-      setErro('Preencha email e senha.');
-      return;
-    }
-
-    setErro('');
+    // BYPASS TEMPORÁRIO PARA DESENVOLVIMENTO
     setLoading(true);
     try {
-      await login(email, senha);
+      // Simula uma resposta bem-sucedida com dados falsos
+      await login({
+        id_pessoa: 1,
+        nome: "Motorista Teste",
+        email: email || "teste@teste.com",
+        tipo: "motorista"
+      });
+      navigation.navigate('Home');
     } catch (error) {
-      setErro(error.message || 'Erro ao fazer login.');
+      setErro('Erro no bypass.');
     } finally {
       setLoading(false);
     }

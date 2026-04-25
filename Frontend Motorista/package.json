@@ -6,8 +6,7 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web",
-    "server": "node mock-server/index.js"
+    "web": "expo start --web"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.13.0",
@@ -29,9 +28,5 @@
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
     "react-native-web": "^0.21.0"
-  },
-  "devDependencies": {
-    "cors": "^2.8.6",
-    "express": "^5.2.1"
   }
 }

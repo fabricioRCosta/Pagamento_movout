@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.xl,
     paddingHorizontal: theme.spacing.md,
     minHeight: 50,
+    width: '100%',
   },
   input: {
     flex: 1,
