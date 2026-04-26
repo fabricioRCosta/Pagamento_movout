@@ -18,9 +18,13 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
         const fetchHistory = async () => {
             try {
                 const res = await fetch(`${API_BASE_URL}/ws/chat/${currentFreteId}/historico?role=user`);
+
                 if (res.ok) {
                     const data = await res.json();
-                    if (Array.isArray(data)) setMessages(data);
+
+                    if (Array.isArray(data)) {
+                        setMessages(data);
+                    }
                 }
             } catch (err) {
                 console.error("Erro buscando historico:", err);
@@ -37,8 +41,14 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
         ws.current.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
+
+                if (data.erro) {
+                    console.error("Erro recebido do websocket:", data.erro);
+                    return;
+                }
+
                 setMessages((prev) => {
-                    if (prev.find(m => m.id === data.id)) return prev;
+                    if (prev.find(m => String(m.id) === String(data.id))) return prev;
                     return [...prev, data];
                 });
             } catch (e) {
@@ -48,7 +58,6 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
 
         return () => {
             if (ws.current) ws.current.close();
-            setMessages([]);
         };
     }, [currentFreteId]);
 
@@ -105,7 +114,7 @@ const Chat = ({ onNavigate, freteId, route, navigation }) => {
             <FlatList
                 data={messages}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={item => String(item.id)}
                 contentContainerStyle={styles.chatList}
             />
 
