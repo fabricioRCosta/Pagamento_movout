@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { ArrowLeft, Clock, DollarSign, Star, CheckCircle, MessageCircle } from 'lucide-react-native';
 import { theme } from '../../theme';
 import { API_BASE_URL } from '../../api/config';
@@ -73,13 +73,13 @@ const Negotiation = ({ onNavigate, freightId }) => {
 
     return (
         <View style={styles.container}>
-            <LinearGradient colors={[theme.colors.primary, theme.colors.primaryDark]} style={styles.header}>
+            <View style={styles.header}>
                 <TouchableOpacity onPress={() => onNavigate('request')} style={styles.backButton}>
                     <ArrowLeft color={theme.colors.white} size={24} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Proposta Disponível</Text>
                 <Text style={styles.headerSubtitle}>Motorista encontrou seu pedido</Text>
-            </LinearGradient>
+            </View>
 
             <ScrollView contentContainerStyle={styles.content}>
 
@@ -197,6 +197,7 @@ const styles = StyleSheet.create({
         paddingBottom: theme.spacing.xl,
         borderBottomLeftRadius: theme.borderRadius.xxl,
         borderBottomRightRadius: theme.borderRadius.xxl,
+        backgroundColor: theme.colors.primary,
     },
     backButton: {
         width: 44, height: 44,

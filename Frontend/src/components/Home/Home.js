@@ -38,6 +38,7 @@ const Home = ({ onNavigate }) => {
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerTop}>
+                    <View style={{ width: 40 }} />
                     <Logo size="sm" />
                     <View style={styles.avatar} />
                 </View>

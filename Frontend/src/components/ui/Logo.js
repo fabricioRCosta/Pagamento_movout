@@ -9,7 +9,7 @@ export const Logo = ({ size = 'md' }) => {
                 // Aspect ratio 1123/794 ~= 1.41
                 return { width: 300, height: 215 };
             case 'sm':
-                return { width: 160, height: 48 };
+                return { width: 180, height: 55 };
             case 'md':
             default:
                 return { width: 240, height: 170 };

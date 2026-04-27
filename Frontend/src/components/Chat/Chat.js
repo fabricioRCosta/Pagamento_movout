@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native';import { LinearGradient } from 'expo-linear-gradient';import { ArrowLeft, Send } from 'lucide-react-native';import { theme } from '../../theme';import { API_BASE_URL, WS_BASE_URL } from '../../api/config';
+import React, { useState, useEffect, useRef } from 'react';import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native';import { ArrowLeft, Send } from 'lucide-react-native';import { theme } from '../../theme';import { API_BASE_URL, WS_BASE_URL } from '../../api/config';
 
 const Chat = ({ onNavigate, freteId, route, navigation }) => {const currentFreteId = route?.params?.freteId || freteId || 1;
 
@@ -84,7 +84,7 @@ const renderItem = ({ item }) => {
 
 return (
     <View style={styles.container}>
-        <LinearGradient colors={[theme.colors.primary, theme.colors.primaryDark]} style={styles.header}>
+        <View style={styles.header}>
             <View style={styles.headerContent}>
                 <TouchableOpacity onPress={() => onNavigate('accepted', { freightId: currentFreteId })} style={styles.backButton}>
                     <ArrowLeft color={theme.colors.white} size={24} />
@@ -94,7 +94,7 @@ return (
                     <Text style={styles.headerSubtitle}>Motorista • Volkswagen Saveiro</Text>
                 </View>
             </View>
-        </LinearGradient>
+        </View>
 
         <FlatList
             data={messages}
@@ -125,7 +125,7 @@ return (
 
 };
 
-const styles = StyleSheet.create({container: { flex: 1, backgroundColor: theme.colors.background },header: { padding: theme.spacing.lg, paddingTop: 50, paddingBottom: theme.spacing.lg },headerContent: { flexDirection: 'row', alignItems: 'center', gap: 16 },backButton: {width: 44, height: 44,backgroundColor: 'rgba(255,255,255,0.15)',borderRadius: theme.borderRadius.lg,justifyContent: 'center', alignItems: 'center',},headerTitle: { fontSize: 18, fontWeight: 'bold', color: theme.colors.white },headerSubtitle: { color: 'rgba(255,255,255,0.8)', fontSize: 12 },
+const styles = StyleSheet.create({container: { flex: 1, backgroundColor: theme.colors.background },header: { padding: theme.spacing.lg, paddingTop: 50, paddingBottom: theme.spacing.lg, backgroundColor: theme.colors.primary },headerContent: { flexDirection: 'row', alignItems: 'center', gap: 16 },backButton: {width: 44, height: 44,backgroundColor: 'rgba(255,255,255,0.15)',borderRadius: theme.borderRadius.lg,justifyContent: 'center', alignItems: 'center',},headerTitle: { fontSize: 18, fontWeight: 'bold', color: theme.colors.white },headerSubtitle: { color: 'rgba(255,255,255,0.8)', fontSize: 12 },
 
 chatList: { padding: theme.spacing.lg },
 messageRow: { flexDirection: 'row', marginBottom: 16, alignItems: 'flex-end', gap: 8 },

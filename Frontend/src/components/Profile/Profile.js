@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { ArrowLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight, Edit2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from '../../theme';
@@ -34,7 +34,7 @@ const Profile = ({ onNavigate, onLogout }) => {
 
     return (
         <View style={styles.container}>
-            <LinearGradient colors={[theme.colors.primary, theme.colors.primaryDark]} style={styles.header}>
+            <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <TouchableOpacity onPress={() => onNavigate('home')} style={styles.backButton}>
                         <ArrowLeft color={theme.colors.white} size={24} />
@@ -59,7 +59,7 @@ const Profile = ({ onNavigate, onLogout }) => {
                     </Text>
                     <Text size="sm" style={styles.userEmail}>{userData.email}</Text>
                 </View>
-            </LinearGradient>
+            </View>
 
             <ScrollView contentContainerStyle={styles.content}>
                 <Card style={styles.section}>
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
         paddingBottom: theme.spacing.xl,
         borderBottomLeftRadius: theme.borderRadius.xxl,
         borderBottomRightRadius: theme.borderRadius.xxl,
+        backgroundColor: theme.colors.primary,
     },
     headerTop: {
         flexDirection: 'row',
