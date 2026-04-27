@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform, Keyboard } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { ArrowLeft, Package, Weight, Timer, Zap, Calendar, Upload, Type, AlertCircle, CheckCircle } from 'lucide-react-native';
 import { theme } from '../../theme';
@@ -449,9 +449,9 @@ const RequestFreight = ({ onNavigate }) => {
   };
 
   const priorities = [
-    { id: 'urgent', label: 'Urgente', subtitle: 'até 20 min', icon: Zap, color: ['#F97316', '#EA580C'] },
-    { id: 'today', label: 'Mesmo dia', subtitle: 'hoje', icon: Timer, color: ['#F4A259', '#E89A3D'] },
-    { id: 'schedule', label: 'Agendar', subtitle: 'escolher data', icon: Calendar, color: ['#EAB308', '#CA8A04'] },
+    { id: 'urgent', label: 'Urgente', subtitle: 'até 20 min', icon: Zap, color: '#F97316' },
+    { id: 'today', label: 'Mesmo dia', subtitle: 'hoje', icon: Timer, color: '#F4A259' },
+    { id: 'schedule', label: 'Agendar', subtitle: 'escolher data', icon: Calendar, color: '#EAB308' },
   ];
 
   const vehicles = [
@@ -648,16 +648,16 @@ const RequestFreight = ({ onNavigate }) => {
                     styles.priorityOption,
                     isSelected && styles.prioritySelected,
                     isSelected && {
-                      borderColor: p.color[1],
+                      borderColor: p.color,
                       backgroundColor: p.id === 'urgent' ? '#FFF7ED' : '#EFF6FF',
                     },
                   ]}
                   onPress={() => setSelectedPriority(p.id)}
                 >
-                  <LinearGradient colors={p.color} style={styles.priorityIcon}>
+                  <View style={[styles.priorityIcon, { backgroundColor: p.color }]}>
                     <Icon color="#fff" size={20} />
-                  </LinearGradient>
-                  <Text style={[styles.priorityLabel, isSelected && { color: p.color[1] }]}>{p.label}</Text>
+                  </View>
+                  <Text style={[styles.priorityLabel, isSelected && { color: p.color }]}>{p.label}</Text>
                   <Text style={styles.prioritySubtitle}>{p.subtitle}</Text>
                 </TouchableOpacity>
               );
@@ -674,9 +674,9 @@ const RequestFreight = ({ onNavigate }) => {
               onPress={() => handleCreateFreight(v)}
               disabled={isCreating}
             >
-              <LinearGradient colors={['#F4A259', '#E89A3D']} style={styles.vehicleIcon}>
+              <View style={[styles.vehicleIcon, { backgroundColor: '#F4A259' }]}>
                 <Text style={{ fontSize: 24 }}>{v.icon}</Text>
-              </LinearGradient>
+              </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.vehicleName}>{v.name}</Text>
                 <Text style={styles.vehicleDetails}>{v.capacity} • {v.time}</Text>
