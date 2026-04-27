@@ -40,14 +40,7 @@ export default function Login({ navigation }) {
       <View style={styles.content}>
         <View style={styles.header}>
           <Logo size="lg" />
-          <Text size="xxl" weight="extraBold" color="white" style={styles.appName}>
-            MOVOUT
-          </Text>
-          <Text variant="subtitle" align="center" style={styles.subtitle}>
-            área do motorista
-          </Text>
         </View>
-
         <Card style={styles.card}>
           <Input
             label="Email"
