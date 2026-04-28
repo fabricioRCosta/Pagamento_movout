@@ -182,4 +182,3 @@ IMPORTANTE: O celular e o computador precisam estar na MESMA rede Wi-Fi para fun
 Se der erro de Network Request Failed, execute o script update_ip.ps1 novamente.
 
 ============================================================================================
-

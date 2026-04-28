@@ -38,7 +38,7 @@ function MainTabs() {
           backgroundColor: '#FFF',
           borderTopWidth: 0,
           elevation: 5,
-          height: 90, // Increased height
+          height: 110, // Increased height
           paddingBottom: 20, // Added padding for system gestures
           paddingTop: 10
         },

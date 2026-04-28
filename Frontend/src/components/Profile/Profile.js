@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 import { ArrowLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight, Edit2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,6 +26,22 @@ const Profile = ({ onNavigate, onLogout }) => {
         }
     };
 
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.5,
+        });
+
+        if (!result.canceled) {
+            const uri = result.assets[0].uri;
+            const newUserData = { ...userData, profilePic: uri };
+            setUserData(newUserData);
+            await AsyncStorage.setItem('userData', JSON.stringify(newUserData));
+        }
+    };
+
     const menuItems = [
         { icon: User, label: 'Editar Perfil', action: () => { } },
         { icon: CreditCard, label: 'Pagamentos', action: () => { } },
@@ -44,16 +61,20 @@ const Profile = ({ onNavigate, onLogout }) => {
                 </View>
 
                 <View style={styles.profileInfo}>
-                    <View style={styles.avatarContainer}>
-                        <View style={styles.avatarPlaceholder}>
-                            <Text size="display" weight="bold" color="primary">
-                                {(userData.nome || userData.name || 'U').charAt(0).toUpperCase()}
-                            </Text>
-                        </View>
-                        <TouchableOpacity style={styles.editBadge}>
+                    <TouchableOpacity style={styles.avatarContainer} onPress={pickImage} activeOpacity={0.8}>
+                        {userData.profilePic ? (
+                            <Image source={{ uri: userData.profilePic }} style={styles.avatarImage} />
+                        ) : (
+                            <View style={styles.avatarPlaceholder}>
+                                <Text size="display" weight="bold" color="primary">
+                                    {(userData.nome || userData.name || 'U').charAt(0).toUpperCase()}
+                                </Text>
+                            </View>
+                        )}
+                        <View style={styles.editBadge}>
                             <Edit2 color="white" size={12} />
-                        </TouchableOpacity>
-                    </View>
+                        </View>
+                    </TouchableOpacity>
                     <Text size="xl" weight="bold" style={styles.userName}>
                         {userData.nome || userData.name}
                     </Text>
@@ -142,6 +163,10 @@ const styles = StyleSheet.create({
         width: 80, height: 80, borderRadius: 40,
         backgroundColor: theme.colors.white,
         justifyContent: 'center', alignItems: 'center',
+        borderWidth: 4, borderColor: 'rgba(255,255,255,0.2)',
+    },
+    avatarImage: {
+        width: 80, height: 80, borderRadius: 40,
         borderWidth: 4, borderColor: 'rgba(255,255,255,0.2)',
     },
     editBadge: {

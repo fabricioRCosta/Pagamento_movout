@@ -71,7 +71,7 @@ export default function Home({ navigation }) {
 
       {!loading && freights.length === 0 && (
         <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-          <Text style={{ fontSize: 48 }}>📦</Text>
+          <Text style={{ fontSize: 48, paddingVertical: 15 }}>📦</Text>
           <Text style={{ fontSize: 16, color: theme.colors.textSecondary, marginTop: 12 }}>
             Nenhum frete disponível no momento
           </Text>

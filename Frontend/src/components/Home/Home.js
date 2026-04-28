@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Platform, StatusBar, Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Truck, Home as HomeIcon, User, History as HistoryIcon, Search } from 'lucide-react-native';
@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Home = ({ onNavigate }) => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
+    const [userData, setUserData] = useState({});
 
     useEffect(() => {
         (async () => {
@@ -23,6 +24,18 @@ const Home = ({ onNavigate }) => {
             let location = await Location.getCurrentPositionAsync({});
             setLocation(location);
         })();
+
+        const loadUser = async () => {
+            try {
+                const json = await AsyncStorage.getItem('userData');
+                if (json) {
+                    setUserData(JSON.parse(json));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+        loadUser();
     }, []);
 
     const initialRegion = {
@@ -38,9 +51,22 @@ const Home = ({ onNavigate }) => {
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerTop}>
-                    <View style={{ width: 40 }} />
-                    <Logo size="sm" />
-                    <View style={styles.avatar} />
+                    <View style={styles.logoWrapper}>
+                        <Logo size="sm" />
+                    </View>
+                    <TouchableOpacity
+                        style={styles.avatar}
+                        onPress={() => onNavigate('profile')}
+                        activeOpacity={0.7}
+                    >
+                        {userData.profilePic ? (
+                            <Image source={{ uri: userData.profilePic }} style={styles.avatarImage} />
+                        ) : (
+                            <Text weight="bold" style={styles.avatarText}>
+                                {(userData.nome || userData.name || 'U').charAt(0).toUpperCase()}
+                            </Text>
+                        )}
+                    </TouchableOpacity>
                 </View>
 
                 <TouchableOpacity style={styles.searchButton} activeOpacity={0.8}>
@@ -97,21 +123,41 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.primary },
     header: {
         padding: theme.spacing.lg,
-        paddingTop: Platform.OS === 'android' ? 40 : 20,
+        paddingTop: Platform.OS === 'android' ? 30 : 20,
         backgroundColor: theme.colors.primary,
         paddingBottom: theme.spacing.lg,
     },
     headerTop: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 8,
+        height: 50,
+        position: 'relative',
+        zIndex: 1,
+    },
+    logoWrapper: {
+        position: 'absolute',
+        left: -15,
+        zIndex: -1,
+        transform: [{ translateY: 8 }, { scale: 2.3 }],
     },
     avatar: {
-        width: 40,
-        height: 40,
+        width: 45,
+        height: 45,
         backgroundColor: 'rgba(255,255,255,0.25)',
-        borderRadius: 20,
+        borderRadius: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    avatarText: {
+        color: theme.colors.white,
+        fontSize: 18,
+    },
+    avatarImage: {
+        width: 45,
+        height: 45,
+        borderRadius: 50,
     },
     searchButton: {
         flexDirection: 'row',
@@ -150,7 +196,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingTop: 12,
+        paddingBottom: Platform.OS === 'android' ? 36 : 32, // Aumenta o espaço na parte inferior
         paddingHorizontal: theme.spacing.md,
         backgroundColor: theme.colors.white,
         borderTopWidth: 0,
