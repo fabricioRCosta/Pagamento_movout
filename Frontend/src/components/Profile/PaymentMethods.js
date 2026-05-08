@@ -14,7 +14,6 @@ import {
 import {
   ArrowLeft,
   CreditCard,
-  Smartphone,
   Plus,
   Trash2,
   Star,
@@ -27,7 +26,7 @@ import { Text } from '../ui/Text';
 import { Card } from '../ui/Card';
 
 const STORAGE_KEY = 'paymentMethods';
-const pixLogo = require('../../../assets/pix_logo.png');
+
 
 const PaymentMethods = ({ onNavigate }) => {
   const [methods, setMethods] = useState([]);
@@ -40,8 +39,7 @@ const PaymentMethods = ({ onNavigate }) => {
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCVV, setCardCVV] = useState('');
 
-  // PIX form field
-  const [pixKey, setPixKey] = useState('');
+
 
   useEffect(() => {
     loadMethods();
@@ -72,7 +70,6 @@ const PaymentMethods = ({ onNavigate }) => {
     setCardName('');
     setCardExpiry('');
     setCardCVV('');
-    setPixKey('');
     setSelectedType('credit');
   };
 
@@ -91,51 +88,36 @@ const PaymentMethods = ({ onNavigate }) => {
   };
 
   const handleAddMethod = () => {
-    if (selectedType === 'pix') {
-      if (!pixKey.trim()) {
-        Alert.alert('Erro', 'Insira sua chave PIX.');
-        return;
-      }
-      const newMethod = {
-        id: Date.now().toString(),
-        type: 'pix',
-        label: `PIX • ${pixKey.trim().length > 16 ? pixKey.trim().slice(0, 16) + '...' : pixKey.trim()}`,
-        pixKey: pixKey.trim(),
-        isDefault: methods.length === 0,
-      };
-      saveMethods([...methods, newMethod]);
-    } else {
-      const rawNumber = cardNumber.replace(/\s/g, '');
-      if (rawNumber.length < 13) {
-        Alert.alert('Erro', 'Número do cartão inválido.');
-        return;
-      }
-      if (!cardName.trim()) {
-        Alert.alert('Erro', 'Insira o nome no cartão.');
-        return;
-      }
-      if (cardExpiry.length < 5) {
-        Alert.alert('Erro', 'Validade inválida.');
-        return;
-      }
-      if (cardCVV.length < 3) {
-        Alert.alert('Erro', 'CVV inválido.');
-        return;
-      }
-
-      const last4 = rawNumber.slice(-4);
-      const typeLabel = selectedType === 'credit' ? 'Crédito' : 'Débito';
-      const newMethod = {
-        id: Date.now().toString(),
-        type: selectedType,
-        label: `${typeLabel} •••• ${last4}`,
-        cardName: cardName.trim(),
-        lastDigits: last4,
-        expiry: cardExpiry,
-        isDefault: methods.length === 0,
-      };
-      saveMethods([...methods, newMethod]);
+    const rawNumber = cardNumber.replace(/\s/g, '');
+    if (rawNumber.length < 13) {
+      Alert.alert('Erro', 'Número do cartão inválido.');
+      return;
     }
+    if (!cardName.trim()) {
+      Alert.alert('Erro', 'Insira o nome no cartão.');
+      return;
+    }
+    if (cardExpiry.length < 5) {
+      Alert.alert('Erro', 'Validade inválida.');
+      return;
+    }
+    if (cardCVV.length < 3) {
+      Alert.alert('Erro', 'CVV inválido.');
+      return;
+    }
+
+    const last4 = rawNumber.slice(-4);
+    const typeLabel = selectedType === 'credit' ? 'Crédito' : 'Débito';
+    const newMethod = {
+      id: Date.now().toString(),
+      type: selectedType,
+      label: `${typeLabel} •••• ${last4}`,
+      cardName: cardName.trim(),
+      lastDigits: last4,
+      expiry: cardExpiry,
+      isDefault: methods.length === 0,
+    };
+    saveMethods([...methods, newMethod]);
     resetForm();
     setShowModal(false);
   };
@@ -176,8 +158,6 @@ const PaymentMethods = ({ onNavigate }) => {
         return '💳';
       case 'debit':
         return '💳';
-      case 'pix':
-        return null; // uses pixLogo image
       default:
         return '💰';
     }
@@ -189,8 +169,6 @@ const PaymentMethods = ({ onNavigate }) => {
         return 'Cartão de Crédito';
       case 'debit':
         return 'Cartão de Débito';
-      case 'pix':
-        return 'PIX';
       default:
         return type;
     }
@@ -199,7 +177,6 @@ const PaymentMethods = ({ onNavigate }) => {
   const paymentTypes = [
     { id: 'credit', label: 'Crédito', icon: '💳', color: '#7C3AED' },
     { id: 'debit', label: 'Débito', icon: '💳', color: '#2563EB' },
-    { id: 'pix', label: 'PIX', icon: null, color: '#059669' },
   ];
 
   return (
@@ -235,7 +212,7 @@ const PaymentMethods = ({ onNavigate }) => {
               Adicionar método de pagamento
             </Text>
             <Text size="xs" color="textSecondary">
-              Cartão de crédito, débito ou PIX
+              Cartão de crédito ou débito
             </Text>
           </View>
         </TouchableOpacity>
@@ -250,7 +227,7 @@ const PaymentMethods = ({ onNavigate }) => {
               Nenhum método cadastrado
             </Text>
             <Text size="sm" color="textSecondary" align="center" style={{ marginTop: 4 }}>
-              Adicione um cartão ou PIX para pagar seus fretes
+              Adicione um cartão para pagar seus fretes
             </Text>
           </View>
         ) : (
@@ -265,16 +242,11 @@ const PaymentMethods = ({ onNavigate }) => {
                     <View
                       style={[
                         styles.methodIconBox,
-                        method.type === 'pix' && { backgroundColor: '#E0F2F1' },
                         method.type === 'credit' && { backgroundColor: '#EDE7F6' },
                         method.type === 'debit' && { backgroundColor: '#E3F2FD' },
                       ]}
                     >
-                      {method.type === 'pix' ? (
-                        <Image source={pixLogo} style={{ width: 28, height: 28 }} resizeMode="contain" />
-                      ) : (
-                        <Text style={{ fontSize: 22 }}>{getPaymentIcon(method.type)}</Text>
-                      )}
+                      <Text style={{ fontSize: 22 }}>{getPaymentIcon(method.type)}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text size="md" weight="bold" color="text">
@@ -349,11 +321,7 @@ const PaymentMethods = ({ onNavigate }) => {
                         ]}
                         onPress={() => setSelectedType(pt.id)}
                       >
-                        {pt.icon ? (
-                          <Text style={{ fontSize: 20 }}>{pt.icon}</Text>
-                        ) : (
-                          <Image source={pixLogo} style={{ width: 24, height: 24 }} resizeMode="contain" />
-                        )}
+                        <Text style={{ fontSize: 20 }}>{pt.icon}</Text>
                         <Text
                           size="sm"
                           weight={isActive ? 'bold' : 'regular'}
@@ -434,33 +402,7 @@ const PaymentMethods = ({ onNavigate }) => {
                   </View>
                 )}
 
-                {/* PIX Form */}
-                {selectedType === 'pix' && (
-                  <View style={styles.formSection}>
-                    <Text size="xs" weight="bold" color="textSecondary" style={styles.formLabel}>
-                      DADOS DO PIX
-                    </Text>
 
-                    <View style={styles.inputGroup}>
-                      <Text style={styles.inputLabel}>Chave PIX</Text>
-                      <TextInput
-                        style={styles.formInput}
-                        value={pixKey}
-                        onChangeText={setPixKey}
-                        placeholder="CPF, e-mail, telefone ou chave aleatória"
-                        placeholderTextColor={theme.colors.textSecondary}
-                        autoCapitalize="none"
-                      />
-                    </View>
-
-                    <View style={styles.pixInfo}>
-                      <Smartphone color={theme.colors.primary} size={16} />
-                      <Text size="xs" color="textSecondary" style={{ flex: 1, marginLeft: 8 }}>
-                        Sua chave PIX será usada para processar pagamentos de forma instantânea.
-                      </Text>
-                    </View>
-                  </View>
-                )}
 
                 {/* Save Button */}
                 <TouchableOpacity style={styles.saveButton} onPress={handleAddMethod} activeOpacity={0.8}>

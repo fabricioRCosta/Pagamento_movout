@@ -20,7 +20,7 @@ const RequestFreight = ({ onNavigate }) => {
   const [isCreating, setIsCreating] = useState(false);
 
   const [paymentMethods, setPaymentMethods] = useState([]);
-  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
+  const [selectedPaymentId, setSelectedPaymentId] = useState('pix');
 
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
@@ -451,7 +451,9 @@ const RequestFreight = ({ onNavigate }) => {
         objeto_ia: aiDetected || null,
         prioridade: selectedPriority,
         fragil: isFragile,
-        metodo_pagamento: selectedPayment ? { tipo: selectedPayment.type, label: selectedPayment.label } : null,
+        metodo_pagamento: selectedPaymentId === 'pix'
+          ? { tipo: 'pix', label: 'PIX' }
+          : selectedPayment ? { tipo: selectedPayment.type, label: selectedPayment.label } : null,
       };
 
       const response = await fetch(`${API_BASE_URL}/fretes/`, {
@@ -710,72 +712,6 @@ const RequestFreight = ({ onNavigate }) => {
           </View>
         </View>
 
-        {/* Método de Pagamento */}
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <CreditCard color="#F4A259" size={20} />
-            <Text style={styles.cardTitle}>Método de Pagamento</Text>
-          </View>
-
-          {paymentMethods.length === 0 ? (
-            <View style={styles.noPaymentBox}>
-              <Text style={styles.noPaymentText}>Nenhum método cadastrado</Text>
-              <TouchableOpacity
-                style={styles.addPaymentBtn}
-                onPress={() => onNavigate('payments')}
-              >
-                <Text style={styles.addPaymentBtnText}>Cadastrar pagamento</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.paymentList}>
-              {paymentMethods.map((method) => {
-                const isSelected = selectedPaymentId === method.id;
-                return (
-                  <TouchableOpacity
-                    key={method.id}
-                    style={[
-                      styles.paymentOption,
-                      isSelected && styles.paymentOptionSelected,
-                    ]}
-                    onPress={() => setSelectedPaymentId(method.id)}
-                  >
-                    <View style={styles.paymentOptionLeft}>
-                      <View style={[
-                        styles.paymentIconBox,
-                        method.type === 'pix' && { backgroundColor: '#E0F2F1' },
-                        method.type === 'credit' && { backgroundColor: '#EDE7F6' },
-                        method.type === 'debit' && { backgroundColor: '#E3F2FD' },
-                      ]}>
-                        {method.type === 'pix' ? (
-                          <Image source={pixLogo} style={{ width: 24, height: 24 }} resizeMode="contain" />
-                        ) : (
-                          <Text style={{ fontSize: 18 }}>{getPaymentIcon(method.type)}</Text>
-                        )}
-                      </View>
-                      <View>
-                        <Text style={styles.paymentLabel}>{method.label}</Text>
-                        <Text style={styles.paymentType}>{getPaymentTypeLabel(method.type)}</Text>
-                      </View>
-                    </View>
-                    {isSelected && (
-                      <View style={styles.paymentCheck}>
-                        <Check color="#fff" size={14} />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-              <TouchableOpacity
-                style={styles.addMorePaymentBtn}
-                onPress={() => onNavigate('payments')}
-              >
-                <Text style={styles.addMorePaymentText}>+ Gerenciar pagamentos</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
         <View style={{ paddingHorizontal: 20 }}>
           <Text style={[styles.sectionTitle, { marginLeft: 4, marginBottom: 16 }]}>Escolha o veículo</Text>
           {vehicles.map((v, i) => (
@@ -795,6 +731,82 @@ const RequestFreight = ({ onNavigate }) => {
               <Text style={styles.vehiclePrice}>{v.price}</Text>
             </TouchableOpacity>
           ))}
+        </View>
+
+        {/* Método de Pagamento */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <CreditCard color="#F4A259" size={20} />
+            <Text style={styles.cardTitle}>Método de Pagamento</Text>
+          </View>
+
+          <View style={styles.paymentList}>
+            {/* PIX Option (always available) */}
+            <TouchableOpacity
+              style={[
+                styles.paymentOption,
+                selectedPaymentId === 'pix' && styles.paymentOptionSelected,
+              ]}
+              onPress={() => setSelectedPaymentId('pix')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.paymentOptionLeft}>
+                <View style={[styles.paymentIconBox, { backgroundColor: '#E0F2F1' }]}>
+                  <Image source={pixLogo} style={{ width: 24, height: 24 }} resizeMode="contain" />
+                </View>
+                <View>
+                  <Text style={styles.paymentLabel}>PIX</Text>
+                  <Text style={styles.paymentType}>Pagamento instantâneo</Text>
+                </View>
+              </View>
+              {selectedPaymentId === 'pix' && (
+                <View style={styles.paymentCheck}>
+                  <Check color="#fff" size={14} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* Registered card methods */}
+            {paymentMethods.map((method) => {
+              const isSelected = selectedPaymentId === method.id;
+              return (
+                <TouchableOpacity
+                  key={method.id}
+                  style={[
+                    styles.paymentOption,
+                    isSelected && styles.paymentOptionSelected,
+                  ]}
+                  onPress={() => setSelectedPaymentId(method.id)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.paymentOptionLeft}>
+                    <View style={[
+                      styles.paymentIconBox,
+                      method.type === 'credit' && { backgroundColor: '#EDE7F6' },
+                      method.type === 'debit' && { backgroundColor: '#E3F2FD' },
+                    ]}>
+                      <Text style={{ fontSize: 18 }}>{getPaymentIcon(method.type)}</Text>
+                    </View>
+                    <View>
+                      <Text style={styles.paymentLabel}>{method.label}</Text>
+                      <Text style={styles.paymentType}>{getPaymentTypeLabel(method.type)}</Text>
+                    </View>
+                  </View>
+                  {isSelected && (
+                    <View style={styles.paymentCheck}>
+                      <Check color="#fff" size={14} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity
+              style={styles.addMorePaymentBtn}
+              onPress={() => onNavigate('payments')}
+            >
+              <Text style={styles.addMorePaymentText}>+ Gerenciar cartões</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </View>

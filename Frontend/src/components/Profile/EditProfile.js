@@ -114,13 +114,7 @@ const EditProfile = ({ onNavigate }) => {
     return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
   };
 
-  const formatCPF = (text) => {
-    const cleaned = text.replace(/\D/g, '').slice(0, 11);
-    if (cleaned.length <= 3) return cleaned;
-    if (cleaned.length <= 6) return `${cleaned.slice(0, 3)}.${cleaned.slice(3)}`;
-    if (cleaned.length <= 9) return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6)}`;
-    return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}-${cleaned.slice(9)}`;
-  };
+
 
   return (
     <View style={styles.container}>
@@ -187,15 +181,14 @@ const EditProfile = ({ onNavigate }) => {
                 <Text style={styles.inputLabel}>E-mail</Text>
               </View>
               <TextInput
-                style={[styles.formInput, styles.disabledInput]}
+                style={styles.formInput}
                 value={userData.email || ''}
-                editable={false}
+                onChangeText={(t) => updateField('email', t)}
                 placeholder="Seu e-mail"
                 placeholderTextColor={theme.colors.textSecondary}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
-              <Text size="xs" color="textSecondary" style={styles.inputHint}>
-                O e-mail não pode ser alterado
-              </Text>
             </View>
 
             <View style={styles.inputGroup}>
@@ -204,14 +197,15 @@ const EditProfile = ({ onNavigate }) => {
                 <Text style={styles.inputLabel}>CPF</Text>
               </View>
               <TextInput
-                style={styles.formInput}
+                style={[styles.formInput, styles.disabledInput]}
                 value={userData.cpf || ''}
-                onChangeText={(t) => updateField('cpf', formatCPF(t))}
+                editable={false}
                 placeholder="000.000.000-00"
                 placeholderTextColor={theme.colors.textSecondary}
-                keyboardType="numeric"
-                maxLength={14}
               />
+              <Text size="xs" color="textSecondary" style={styles.inputHint}>
+                O CPF não pode ser alterado
+              </Text>
             </View>
 
             <View style={[styles.inputGroup, { marginBottom: 0 }]}>
