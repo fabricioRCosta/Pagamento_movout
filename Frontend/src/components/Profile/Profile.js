@@ -43,10 +43,8 @@ const Profile = ({ onNavigate, onLogout }) => {
     };
 
     const menuItems = [
-        { icon: User, label: 'Editar Perfil', action: () => { } },
-        { icon: CreditCard, label: 'Pagamentos', action: () => { } },
-        { icon: Bell, label: 'Notificações', action: () => { } },
-        { icon: Shield, label: 'Segurança e Privacidade', action: () => { } },
+        { icon: User, label: 'Editar Perfil', action: () => onNavigate('editProfile') },
+        { icon: CreditCard, label: 'Pagamentos', action: () => onNavigate('payments') },
     ];
 
     return (
@@ -110,7 +108,7 @@ const Profile = ({ onNavigate, onLogout }) => {
                     {menuItems.map((item, index) => {
                         const Icon = item.icon;
                         return (
-                            <TouchableOpacity key={index} style={styles.menuItem}>
+                            <TouchableOpacity key={index} style={styles.menuItem} onPress={item.action}>
                                 <View style={styles.menuIconBox}>
                                     <Icon color={theme.colors.primary} size={20} />
                                 </View>

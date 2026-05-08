@@ -1,12 +1,13 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform, Keyboard, Image } from 'react-native';
 
 import MapView, { Marker, Polyline } from 'react-native-maps';
-import { ArrowLeft, Package, Weight, Timer, Zap, Calendar, Upload, Type, AlertCircle, CheckCircle } from 'lucide-react-native';
+import { ArrowLeft, Package, Weight, Timer, Zap, Calendar, Upload, Type, AlertCircle, CheckCircle, CreditCard, Smartphone, Check } from 'lucide-react-native';
 import { theme } from '../../theme';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { API_BASE_URL } from '../../api/config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RequestFreight = ({ onNavigate }) => {
   const [selectedPriority, setSelectedPriority] = useState('today');
@@ -17,6 +18,9 @@ const RequestFreight = ({ onNavigate }) => {
   const [aiDetected, setAiDetected] = useState(null);
   const [aiError, setAiError] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
+
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
 
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
@@ -103,6 +107,24 @@ const RequestFreight = ({ onNavigate }) => {
     };
     fetchRoute();
   }, [originCoords, destinationCoords]);
+
+  // Load saved payment methods
+  useEffect(() => {
+    const loadPaymentMethods = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('paymentMethods');
+        if (stored) {
+          const methods = JSON.parse(stored);
+          setPaymentMethods(methods);
+          const defaultMethod = methods.find(m => m.isDefault);
+          if (defaultMethod) setSelectedPaymentId(defaultMethod.id);
+        }
+      } catch (e) {
+        console.warn('Error loading payment methods', e);
+      }
+    };
+    loadPaymentMethods();
+  }, []);
 
   // convert a Photon feature response into our suggestion format
   const mapPhotonFeature = (feature) => {
@@ -411,6 +433,8 @@ const RequestFreight = ({ onNavigate }) => {
         ? calculateDistance(resolvedOrigin.lat, resolvedOrigin.lon, resolvedDestination.lat, resolvedDestination.lon)
         : 0;
 
+      const selectedPayment = paymentMethods.find(m => m.id === selectedPaymentId);
+
       const freightData = {
         id: Math.floor(Math.random() * 100000),
         descricao: objectDescription || (aiDetected ? `${aiDetected}` : 'Frete enviado via app'),
@@ -427,6 +451,7 @@ const RequestFreight = ({ onNavigate }) => {
         objeto_ia: aiDetected || null,
         prioridade: selectedPriority,
         fragil: isFragile,
+        metodo_pagamento: selectedPayment ? { tipo: selectedPayment.type, label: selectedPayment.label } : null,
       };
 
       const response = await fetch(`${API_BASE_URL}/fretes/`, {
@@ -460,6 +485,26 @@ const RequestFreight = ({ onNavigate }) => {
     { name: 'Caminhão', icon: '🚚', capacity: 'Até 3 ton', price: 'R$ 150,00', time: '1h 30min' },
   ];
 
+  const pixLogo = require('../../../assets/pix_logo.png');
+
+  const getPaymentIcon = (type) => {
+    switch (type) {
+      case 'credit': return '💳';
+      case 'debit': return '💳';
+      case 'pix': return null; // uses pixLogo image
+      default: return '💰';
+    }
+  };
+
+  const getPaymentTypeLabel = (type) => {
+    switch (type) {
+      case 'credit': return 'Crédito';
+      case 'debit': return 'Débito';
+      case 'pix': return 'PIX';
+      default: return type;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -469,7 +514,9 @@ const RequestFreight = ({ onNavigate }) => {
 
         <Text style={styles.headerTitle}>Novo Frete</Text>
         <Text style={styles.headerSubtitle}>Solicite seu transporte</Text>
+      </View>
 
+      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 40, paddingTop: theme.spacing.md }} keyboardShouldPersistTaps="handled">
         <View style={styles.addressCard}>
           <View style={styles.addressItem}>
             <View style={[styles.dot, styles.dotOrigin]} />
@@ -524,9 +571,7 @@ const RequestFreight = ({ onNavigate }) => {
             </View>
           </View>
         </View>
-      </View>
 
-      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Rota no mapa</Text>
           <MapView style={styles.mapPreview} region={mapRegion}>
@@ -665,6 +710,72 @@ const RequestFreight = ({ onNavigate }) => {
           </View>
         </View>
 
+        {/* Método de Pagamento */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <CreditCard color="#F4A259" size={20} />
+            <Text style={styles.cardTitle}>Método de Pagamento</Text>
+          </View>
+
+          {paymentMethods.length === 0 ? (
+            <View style={styles.noPaymentBox}>
+              <Text style={styles.noPaymentText}>Nenhum método cadastrado</Text>
+              <TouchableOpacity
+                style={styles.addPaymentBtn}
+                onPress={() => onNavigate('payments')}
+              >
+                <Text style={styles.addPaymentBtnText}>Cadastrar pagamento</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.paymentList}>
+              {paymentMethods.map((method) => {
+                const isSelected = selectedPaymentId === method.id;
+                return (
+                  <TouchableOpacity
+                    key={method.id}
+                    style={[
+                      styles.paymentOption,
+                      isSelected && styles.paymentOptionSelected,
+                    ]}
+                    onPress={() => setSelectedPaymentId(method.id)}
+                  >
+                    <View style={styles.paymentOptionLeft}>
+                      <View style={[
+                        styles.paymentIconBox,
+                        method.type === 'pix' && { backgroundColor: '#E0F2F1' },
+                        method.type === 'credit' && { backgroundColor: '#EDE7F6' },
+                        method.type === 'debit' && { backgroundColor: '#E3F2FD' },
+                      ]}>
+                        {method.type === 'pix' ? (
+                          <Image source={pixLogo} style={{ width: 24, height: 24 }} resizeMode="contain" />
+                        ) : (
+                          <Text style={{ fontSize: 18 }}>{getPaymentIcon(method.type)}</Text>
+                        )}
+                      </View>
+                      <View>
+                        <Text style={styles.paymentLabel}>{method.label}</Text>
+                        <Text style={styles.paymentType}>{getPaymentTypeLabel(method.type)}</Text>
+                      </View>
+                    </View>
+                    {isSelected && (
+                      <View style={styles.paymentCheck}>
+                        <Check color="#fff" size={14} />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+              <TouchableOpacity
+                style={styles.addMorePaymentBtn}
+                onPress={() => onNavigate('payments')}
+              >
+                <Text style={styles.addMorePaymentText}>+ Gerenciar pagamentos</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
         <View style={{ paddingHorizontal: 20 }}>
           <Text style={[styles.sectionTitle, { marginLeft: 4, marginBottom: 16 }]}>Escolha o veículo</Text>
           {vehicles.map((v, i) => (
@@ -692,7 +803,7 @@ const RequestFreight = ({ onNavigate }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  header: { padding: theme.spacing.lg, paddingTop: 50, paddingBottom: theme.spacing.xl, backgroundColor: theme.colors.primary },
+  header: { padding: theme.spacing.lg, paddingTop: 50, paddingBottom: theme.spacing.lg, backgroundColor: theme.colors.primary },
   backButton: {
     width: 44,
     height: 44,
@@ -853,6 +964,91 @@ const styles = StyleSheet.create({
   },
   suggestionItem: { padding: 12, borderBottomWidth: 1, borderBottomColor: theme.colors.border, backgroundColor: theme.colors.surface },
   suggestionText: { fontSize: 13, color: theme.colors.text },
+
+  // Payment method styles
+  noPaymentBox: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    backgroundColor: theme.colors.surfaceAlt,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderStyle: 'dashed',
+  },
+  noPaymentText: {
+    color: theme.colors.textSecondary,
+    fontSize: 13,
+    marginBottom: 10,
+  },
+  addPaymentBtn: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: theme.borderRadius.lg,
+  },
+  addPaymentBtnText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  paymentList: {
+    gap: 8,
+  },
+  paymentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 14,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surfaceAlt,
+  },
+  paymentOptionSelected: {
+    borderColor: theme.colors.primary,
+    backgroundColor: '#FFFBEB',
+  },
+  paymentOptionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  paymentIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.borderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.surfaceAlt,
+  },
+  paymentLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text,
+  },
+  paymentType: {
+    fontSize: 11,
+    color: theme.colors.textSecondary,
+    marginTop: 1,
+  },
+  paymentCheck: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: theme.colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addMorePaymentBtn: {
+    alignItems: 'center',
+    paddingVertical: 10,
+    marginTop: 4,
+  },
+  addMorePaymentText: {
+    color: theme.colors.primary,
+    fontWeight: '600',
+    fontSize: 13,
+  },
 });
 
 export default RequestFreight;

@@ -22,6 +22,8 @@ import FreightAccepted from './src/components/FreightAccepted/FreightAccepted';
 import History from './src/components/History/History';
 import Chat from './src/components/Chat/Chat';
 import Profile from './src/components/Profile/Profile';
+import PaymentMethods from './src/components/Profile/PaymentMethods';
+import EditProfile from './src/components/Profile/EditProfile';
 
 // Tipos de telas disponíveis
 export const Screen = {
@@ -36,6 +38,8 @@ export const Screen = {
   HISTORY: 'history',
   CHAT: 'chat',
   PROFILE: 'profile',
+  PAYMENTS: 'payments',
+  EDIT_PROFILE: 'editProfile',
 };
 
 function App() {
@@ -112,13 +116,11 @@ function App() {
       case Screen.CHAT:
         return <Chat onNavigate={handleNavigate} freteId={screenParams.freightId} />;
       case Screen.PROFILE:
-        return <Profile onNavigate={handleNavigate} onLogout={handleLogout} />; // User prop fetched inside or passed?
-      // Original passed user={JSON.parse(localStorage...)}
-      // In RN, reading from AsyncStorage is async, so better to handle user state in App or Profile.
-      // For 'minimal structure change', I should probably pass user, but fetching async in render is bad.
-      // I will let Profile handle fetching or use a state in App.
-      // I'll make Profile fetch it itself to be safe or read it once.
-      // For now I'll pass nothing and let Profile handle it or handle it later.
+        return <Profile onNavigate={handleNavigate} onLogout={handleLogout} />;
+      case Screen.PAYMENTS:
+        return <PaymentMethods onNavigate={handleNavigate} />;
+      case Screen.EDIT_PROFILE:
+        return <EditProfile onNavigate={handleNavigate} />;
       default:
         return <Splash onNavigate={handleNavigate} />;
     }
