@@ -35,8 +35,8 @@ async def obter_historico(email: str, db: Session = Depends(get_session)):
     Retorna o histórico de fretes de um usuário (como cliente ou motorista).
     """
     q = text("""
-        SELECT f.id_frete, f.data_criacao, f.endereco_origem, f.endereco_destino, 
-               f.preco_fechado, f.preco_estimado, f.status, 
+        SELECT f.id_frete, f.endereco_origem, f.endereco_destino,
+               f.preco_fechado, f.preco_estimado, f.status,
                p_motorista.nome as motorista_nome
         FROM frete7 f
         LEFT JOIN cliente7 c ON f.id_cliente = c.id_cliente
@@ -44,29 +44,20 @@ async def obter_historico(email: str, db: Session = Depends(get_session)):
         LEFT JOIN motorista7 m ON f.id_motorista = m.id_motorista
         LEFT JOIN pessoa7 p_motorista ON m.id_pessoa = p_motorista.id_pessoa
         WHERE (p_cliente.email = :email OR p_motorista.email = :email)
-          AND f.status IN ('SOLICITADO', 'CANCELADO', 'EM_ANDAMENTO')
-        ORDER BY f.data_criacao DESC
+        ORDER BY f.id_frete DESC
     """)
     rows = db.exec(q, params={"email": email}).fetchall()
     
     historico = []
     for row in rows:
-        id_frete, data_criacao, origem, destino, preco_f, preco_e, status, motorista = row
-        
-        if data_criacao:
-            try:
-                data_str = data_criacao.strftime("%d/%m/%Y")
-            except Exception:
-                data_str = str(data_criacao).split(" ")[0]
-        else:
-            data_str = "N/A"
+        id_frete, origem, destino, preco_f, preco_e, status, motorista = row
             
         preco = preco_f if preco_f is not None else preco_e
         preco_str = f"R$ {float(preco):.2f}".replace(".", ",") if preco is not None else "A combinar"
         
         historico.append({
             "id": id_frete,
-            "date": data_str,
+            "date": "N/A",
             "origin": origem,
             "dest": destino,
             "price": preco_str,

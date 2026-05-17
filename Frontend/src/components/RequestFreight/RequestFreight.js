@@ -34,6 +34,9 @@ const RequestFreight = ({ onNavigate }) => {
   const [isSearchingOrigin, setIsSearchingOrigin] = useState(false);
   const [isSearchingDest, setIsSearchingDest] = useState(false);
 
+  // Localização do usuário para dar prioridade a resultados próximos
+  const [userLocation, setUserLocation] = useState({ lat: -15.601, lon: -56.097 }); // Cuiabá como fallback
+
   const originDebounceRef = useRef(null);
   const destinationDebounceRef = useRef(null);
 
@@ -108,6 +111,22 @@ const RequestFreight = ({ onNavigate }) => {
     fetchRoute();
   }, [originCoords, destinationCoords]);
 
+  // Obter localização do usuário para bias de busca
+  useEffect(() => {
+    const getUserLocation = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') return;
+        const current = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        setUserLocation({ lat: current.coords.latitude, lon: current.coords.longitude });
+        console.log('User location for search bias:', current.coords.latitude, current.coords.longitude);
+      } catch (e) {
+        console.warn('Could not get user location for search bias, using default', e);
+      }
+    };
+    getUserLocation();
+  }, []);
+
   // Load saved payment methods
   useEffect(() => {
     const loadPaymentMethods = async () => {
@@ -150,7 +169,8 @@ const RequestFreight = ({ onNavigate }) => {
   };
 
   const searchPhoton = async (query) => {
-    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=pt&limit=5`;
+    // Passa lat/lon para o Photon priorizar resultados próximos ao usuário
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=pt&limit=5&lat=${userLocation.lat}&lon=${userLocation.lon}`;
     const response = await fetch(url, {
       headers: {
         Accept: 'application/json',
@@ -164,7 +184,14 @@ const RequestFreight = ({ onNavigate }) => {
 
   // direct Nominatim search, used as first attempt for suggestions
   const searchNominatim = async (query) => {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(query)}`;
+    // Cria um viewbox de ~100km ao redor da localização do usuário para priorizar resultados próximos
+    const delta = 1.0; // ~111km em latitude
+    const vbLeft = (userLocation.lon - delta).toFixed(4);
+    const vbTop = (userLocation.lat + delta).toFixed(4);
+    const vbRight = (userLocation.lon + delta).toFixed(4);
+    const vbBottom = (userLocation.lat - delta).toFixed(4);
+    const viewbox = `${vbLeft},${vbTop},${vbRight},${vbBottom}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(query)}&viewbox=${viewbox}&bounded=1&countrycodes=br`;
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
@@ -190,6 +217,7 @@ const RequestFreight = ({ onNavigate }) => {
   };
 
   // helper that runs both geocoders in parallel and merges results
+  // Photon tem melhor suporte a bias de localização, então vem primeiro
   const searchCombined = async (query) => {
     const results = [];
     try {
@@ -198,14 +226,23 @@ const RequestFreight = ({ onNavigate }) => {
         searchPhoton(query).catch(e => { console.warn('photon error', e); return []; }),
       ]);
       const seen = new Set();
-      for (const item of [...n1, ...p1]) {
+      // Photon primeiro (melhor bias de localização), depois Nominatim
+      for (const item of [...p1, ...n1]) {
         const key = `${item.lat}:${item.lon}`;
         if (!seen.has(key)) {
           seen.add(key);
           results.push(item);
-          if (results.length >= 5) break;
+          if (results.length >= 6) break;
         }
       }
+      // Ordenar por distância do usuário (mais perto primeiro)
+      results.sort((a, b) => {
+        const distA = Math.abs(a.lat - userLocation.lat) + Math.abs(a.lon - userLocation.lon);
+        const distB = Math.abs(b.lat - userLocation.lat) + Math.abs(b.lon - userLocation.lon);
+        return distA - distB;
+      });
+      // Limitar a 5 resultados
+      results.splice(5);
     } catch (e) {
       console.warn('search combined failure', e);
     }

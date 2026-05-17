@@ -17,10 +17,14 @@ const History = ({ onNavigate }) => {
 
     const loadHistory = async () => {
         try {
-            const json = (await AsyncStorage.getItem('user')) || (await AsyncStorage.getItem('userData'));
+            const json = (await AsyncStorage.getItem('userData')) || (await AsyncStorage.getItem('user'));
             if (!json) return;
 
             const user = JSON.parse(json);
+            if (!user || !user.email) {
+                console.error("Histórico: email do usuário não encontrado no AsyncStorage");
+                return;
+            }
 
             const response = await fetch(`${API_BASE_URL}/cliente/me/historico?email=${user.email}`);
             const data = await response.json();
